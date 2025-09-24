@@ -1,0 +1,31 @@
+{
+  "type": "module",
+  "name": "atenzo",
+  "version": "1.0.0",
+  "description": "this is attenzo api",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git"
+  },
+  "author": "Abdulaki",
+  "license": "ISC",
+  "dependencies": {
+    "@react-pdf/renderer": "^4.3.0",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
+    "mysql2": "^3.14.3",
+    "nodemon": "^3.1.10",
+    "pdfkit": "^0.17.2",
+    "pg": "^8.16.3"
+  }
+}
