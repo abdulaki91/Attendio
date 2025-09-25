@@ -5,6 +5,7 @@ import {
   deleteStudentQuery,
   fetchStudentsByTeacher,
   findStudentById,
+  findStudentByIdNumber,
   getStudentsWithAttendance,
   updateStudentQuery,
 } from "../models/studentModel.js";
@@ -114,7 +115,7 @@ export const batchImportStudents = async (req, res, next) => {
       }
 
       // Check if student already exists
-      const existing = await findStudentById(id_number);
+      const existing = await findStudentByIdNumber(id_number);
       if (existing) {
         skippedStudents.push({ ...s, reason: "Duplicate ID" });
         continue;

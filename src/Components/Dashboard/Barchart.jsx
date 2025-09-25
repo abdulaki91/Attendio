@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -10,97 +10,30 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const transformAttendanceByGrade = (students, attendance) => {
-  const grouped = {};
+import { useAnalyticsBarData } from "../../hooks/useAnalyticsBarData.js";
 
-  // Group all students by grade
-  students.forEach((student) => {
-    const grade = student.grade || "Unknown";
-    if (!grouped[grade]) {
-      grouped[grade] = { name: grade, total: 0, present: 0, absent: 0 };
-    }
-    grouped[grade].total += 1;
-  });
-
-  // Count present students
-  attendance.forEach((record) => {
-    const grade = record.grade || "Unknown";
-    if (!grouped[grade]) {
-      grouped[grade] = { name: grade, total: 0, present: 0, absent: 0 };
-    }
-    if (record.status === "present") {
-      grouped[grade].present += 1;
-    }
-  });
-
-  // Compute absent = total - present
-  Object.keys(grouped).forEach((grade) => {
-    grouped[grade].absent = grouped[grade].total - grouped[grade].present;
-  });
-
-  return Object.values(grouped);
+const todayString = () => {
+  const d = new Date();
+  return [
+    d.getFullYear(),
+    String(d.getMonth() + 1).padStart(2, "0"),
+    String(d.getDate()).padStart(2, "0"),
+  ].join("-");
 };
 
-const data = [
-  {
-    name: "Page A",
-    uv: 4000,
-    pv: 2400,
-    amt: 2400,
-  },
-  {
-    name: "Page B",
-    uv: 3000,
-    pv: 1398,
-    amt: 2210,
-  },
-  {
-    name: "Page C",
-    uv: 2000,
-    pv: 9800,
-    amt: 2290,
-  },
-  {
-    name: "Page D",
-    uv: 2780,
-    pv: 3908,
-    amt: 2000,
-  },
-  {
-    name: "Page E",
-    uv: 1890,
-    pv: 4800,
-    amt: 2181,
-  },
-  {
-    name: "Page F",
-    uv: 2390,
-    pv: 3800,
-    amt: 2500,
-  },
-  {
-    name: "Page G",
-    uv: 3490,
-    pv: 4300,
-    amt: 2100,
-  },
-];
-const BarChartComponent = ({ students, attendance }) => {
-  const chartData =
-    students && students.length > 0
-      ? transformAttendanceByGrade(students, attendance)
-      : [];
-
-  const presentColor = "#3b82f6"; // blue
-  const absentColor = "#ef4444"; // red
+const BarChartComponent = () => {
+  const presentColor = "#3b82f6"; // Tailwind blue-500
+  const absentColor = "#ef4444"; // Tailwind red-500
+  const defaultDate = useMemo(() => todayString(), []);
+  const { data = [], isLoading } = useAnalyticsBarData({ date: defaultDate });
 
   return (
     <div className="card w-full shadow-xl bg-base-100 p-4">
       <h2 className="text-xl font-semibold text-base-content mb-4">
-        Attendance by Grade
+        Attendance by Department
       </h2>
       <ResponsiveContainer width="100%" height={350}>
-        <BarChart data={chartData} barSize={25}>
+        <BarChart data={data} barSize={25}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
           <XAxis dataKey="name" />
           <YAxis allowDecimals={false} />
@@ -109,13 +42,13 @@ const BarChartComponent = ({ students, attendance }) => {
           <Bar
             dataKey="present"
             fill={presentColor}
-            name="Present"
+            name={isLoading ? "Loading..." : "Present"}
             radius={[6, 6, 0, 0]}
           />
           <Bar
             dataKey="absent"
             fill={absentColor}
-            name="Absent"
+            name={isLoading ? "Loading..." : "Absent"}
             radius={[6, 6, 0, 0]}
           />
         </BarChart>

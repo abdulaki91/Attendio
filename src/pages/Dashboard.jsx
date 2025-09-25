@@ -35,18 +35,18 @@ const cardData = [
   },
 ];
 
-  // Fetch students from DB
-  useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        const response = await axios.get(`${baseUri}/students/get-students`);
-        setStudents(response.data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchStudents();
-  }, []);
+  // // Fetch students from DB
+  // useEffect(() => {
+  //   const fetchStudents = async () => {
+  //     try {
+  //       const response = await axios.get(`${baseUri}/students/get-students`);
+  //       setStudents(response.data);
+  //     } catch (err) {
+  //       console.error(err);
+  //     }
+  //   };
+  //   fetchStudents();
+  // }, []);
 
   // Fetch attendance whenever date or grade changes
   useEffect(() => {

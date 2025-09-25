@@ -22,7 +22,7 @@ export default function useMarkStudent() {
     },
     onSuccess: (data) => {
       // Invalidate students query to refetch and update UI
-      queryClient.invalidateQueries({ queryKey: ["students"] });
+      queryClient.invalidateQueries({ queryKey: ["attendance_students"] });
       toast.success(data.message, { duration: 2000 });
     },
   });

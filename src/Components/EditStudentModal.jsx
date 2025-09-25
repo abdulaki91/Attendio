@@ -7,7 +7,6 @@ export default function EditStudentModal({ student, onClose }) {
   const [form, setForm] = useState({});
   const editStudent = useEditStudent();
 
-  console.log(form);
   useEffect(() => {
     if (student) setForm(student);
   }, [student]);
@@ -54,7 +53,7 @@ export default function EditStudentModal({ student, onClose }) {
             label="Batch"
             value={form.batch || ""}
             options={["Batch I", "Batch II"]}
-            onChange={(val) => handleChange("batch", val)}
+            onChange={(e) => handleChange("batch", e.target.value)}
           />
 
           <Input
@@ -67,7 +66,7 @@ export default function EditStudentModal({ student, onClose }) {
             label="Gender"
             value={form.gender || ""}
             options={["Male", "Female"]}
-            onChange={(val) => handleChange("gender", val)}
+            onChange={(e) => handleChange("gender", e.target.value)}
           />
 
           <div className="modal-action flex justify-end space-x-2 mt-3">

@@ -13,10 +13,29 @@ export const createAttendanceTable = () => {
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
       FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
       FOREIGN KEY (teacher_id) REFERENCES users(id) ON DELETE SET NULL,
-      UNIQUE KEY unique_attendance (student_id, attendance_date)
+      UNIQUE KEY unique_attendance_teacher (student_id, attendance_date, teacher_id)
     );
   `;
-  return db.execute(sql);
+  // Try to ensure the unique key is (student_id, attendance_date, teacher_id)
+  // In case an older index exists, adjust it safely.
+  return db
+    .execute(sql)
+    .then(async () => {
+      try {
+        await db.execute(
+          `ALTER TABLE attendance DROP INDEX unique_attendance;`
+        );
+      } catch (e) {
+        // index may not exist; ignore
+      }
+      try {
+        await db.execute(
+          `ALTER TABLE attendance ADD UNIQUE KEY unique_attendance_teacher (student_id, attendance_date, teacher_id);`
+        );
+      } catch (e) {
+        // already updated; ignore
+      }
+    });
 };
 
 // Toggle attendance record (date-based only)
@@ -30,8 +49,8 @@ export const toggleAttendanceRecord = async ({
 
   // Check if attendance already exists
   const [rows] = await db.execute(
-    `SELECT * FROM attendance WHERE student_id = ? AND attendance_date = ?`,
-    [student_id, formattedDate]
+    `SELECT * FROM attendance WHERE student_id = ? AND attendance_date = ? AND teacher_id = ?`,
+    [student_id, formattedDate, teacher_id]
   );
 
   if (rows.length > 0) {
@@ -40,8 +59,8 @@ export const toggleAttendanceRecord = async ({
     let newStatus = currentStatus === "Present" ? "Absent" : "Present";
 
     await db.execute(
-      `UPDATE attendance SET status = ?, teacher_id = ? WHERE id = ?`,
-      [newStatus, teacher_id, rows[0].id]
+      `UPDATE attendance SET status = ? WHERE id = ?`,
+      [newStatus, rows[0].id]
     );
 
     return `Attendance updated: ${newStatus}`;
@@ -79,8 +98,14 @@ export const fetchAttendanceByStudentId = async (studentId) => {
 // Fetch students with their attendance for the logged-in teacher
 export const getStudentsWithAttendance = async (teacher_id, filters = {}) => {
   const { date, department, batch } = filters;
-  let sql = `
-  SELECT 
+  console.log("teacher_id", teacher_id);
+  console.log("date", date);
+  console.log("department", department);
+  console.log("batch", batch);
+
+  // Build SQL in parts to keep placeholder ordering predictable
+  let selectClause = `
+  SELECT  
     s.id AS student_id,
     s.fullname,
     s.department,
@@ -91,45 +116,49 @@ export const getStudentsWithAttendance = async (teacher_id, filters = {}) => {
     a.id AS attendance_id,
     a.status,
     DATE_FORMAT(a.attendance_date, '%Y-%m-%d') AS attendance_date,
-    a.teacher_id
-  FROM students s
-  LEFT JOIN attendance a 
-    ON s.id = a.student_id
-`;
+    a.teacher_id`;
 
-  const conditions = [];
+  let fromClause = `
+  FROM students s`;
+
+  // LEFT JOIN must include attendance filters to avoid converting to INNER JOIN
+  let joinClause = `
+  LEFT JOIN attendance a ON s.id = a.student_id`;
+
   const params = [];
 
-  // Filters for students
-  if (department) {
-    conditions.push("s.department = ?");
-    params.push(department);
+  // Attendance filters go on the JOIN so students without attendance are kept
+  if (teacher_id !== undefined && teacher_id !== null) {
+    joinClause += ` AND a.teacher_id = ?`;
+    params.push(teacher_id);
   }
-  if (batch) {
-    conditions.push("s.batch = ?");
-    params.push(batch);
-  }
-
-  // Filters for attendance
-  conditions.push("a.teacher_id = ?");
-  params.push(teacher_id);
-
   if (date) {
-    conditions.push("a.attendance_date = ?");
+    joinClause += ` AND a.attendance_date = ?`;
     params.push(date);
   }
 
-  if (conditions.length > 0) {
-    sql += " WHERE " + conditions.join(" AND ");
+  const whereConditions = [];
+
+  // Student attribute filters belong in WHERE
+  if (department) {
+    whereConditions.push("s.department = ?");
+    params.push(department);
+  }
+  if (batch) {
+    whereConditions.push("s.batch = ?");
+    params.push(batch);
   }
 
-  // Execute query
+  let sql = selectClause + fromClause + joinClause;
+  if (whereConditions.length > 0) {
+    sql += "\n  WHERE " + whereConditions.join(" AND ");
+  }
+
   const [rows] = await db.execute(sql, params);
 
   const studentsMap = {};
 
   rows.forEach((row) => {
-    // Initialize student object if not exists
     if (!studentsMap[row.student_id]) {
       studentsMap[row.student_id] = {
         student_id: row.student_id,
@@ -143,11 +172,10 @@ export const getStudentsWithAttendance = async (teacher_id, filters = {}) => {
       };
     }
 
-    // Only process attendance if it exists and date is valid
     if (row.attendance_id && row.attendance_date) {
       studentsMap[row.student_id].attendance.push({
         status: row.status,
-        attendance_date: row.attendance_date, // already YYYY-MM-DD
+        attendance_date: row.attendance_date,
         teacher_id: row.teacher_id,
       });
     }

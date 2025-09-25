@@ -89,7 +89,7 @@ export default function AddStudentModal({ label }) {
               label="Gender"
               options={["Male", "Female"]}
               value={form.gender}
-              onChange={(value) => handleChange("gender", value)}
+              onChange={(e) => handleChange("gender", e.target.value)}
             />
 
             <div className="modal-action">

@@ -6,10 +6,13 @@ import Button from "../Components/Button";
 import Input from "../Components/Input";
 import usePrint from "../hooks/usePrint";
 import formatLocaldate from "../utils/formatLocaldate";
-const Attendance = ({ students, isLoading }) => {
+import { useAttendanceStudents } from "../hooks/useAttendanceStudents";
+const Attendance = () => {
   const [date, setDate] = useState("");
   const [inputDate, setInputDate] = useState("");
   const [department, setDepartment] = useState([]);
+  const [batch, setBatch] = useState([]);
+  const [selectedBatch, setSelectedBatch] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const { mutate: markStudent } = useMarkStudent();
   const tableRef = useRef(null);
@@ -19,10 +22,21 @@ const Attendance = ({ students, isLoading }) => {
       !selectedDepartment ? "All" : selectedDepartment
     } Department on ${formatLocaldate(date || new Date())}`
   );
+  const { data: students = [], isLoading } = useAttendanceStudents({
+    date: inputDate,
+    department: selectedDepartment,
+    batch: selectedBatch,
+  });
   // Collect unique departments
   useEffect(() => {
     const fetchedDepartments = students.map((s) => s.department);
     setDepartment([...new Set(fetchedDepartments)]);
+  }, [students]);
+
+  // Collect unique batches
+  useEffect(() => {
+    const fetchedBatches = students.map((s) => s.batch);
+    setBatch([...new Set(fetchedBatches)]);
   }, [students]);
 
   // Default date = today (as string YYYY-MM-DD)
@@ -50,7 +64,8 @@ const Attendance = ({ students, isLoading }) => {
   const displayedStudents = (students || []).filter((s) => {
     const departmentMatch =
       !selectedDepartment || s.department === selectedDepartment;
-
+    const batchMatch = !selectedBatch || s.batch === selectedBatch;
+    if (!departmentMatch || !batchMatch) return false;
     const dateMatch =
       !inputDate || s.attendance?.some((a) => a.attendance_date === inputDate);
 
@@ -88,12 +103,11 @@ const Attendance = ({ students, isLoading }) => {
   return (
     <div className="p-1 sm:p-2 md:p-4 lg:p-6 bg-base-300 space-y-6 border  border-blue-400 rounded-lg">
       <h1 className="text-2xl font-bold"> Attendance</h1>
-      <div className=" flex flex-col sm:flex-row gap-4 sm:gap-0 sm:justify-between md:items-center md:gap-1 text-xs md:text-sm lg:text-base">
+      <div className=" flex flex-col sm:flex-row gap-2 sm:gap-0 sm:justify-between md:items-center md:gap-1 text-xs md:text-sm lg:text-base">
         {/* Header */}
-        <div className="flex flex-wrap sm:gap-1 md:gap-2 lg:gap-4 bg-base-100  p-1 sm:p-2 md:p-3 lg:p-4 rounded-lg md:flex-row shadow-sm justify-between items-center">
-          <div className="flex gap-2 items-center md:flex-row flex-wrap md:justify-center">
+        <div className="flex flex-wrap sm:gap-1 md:gap-2 lg:gap-2 bg-base-100 w-max  p-1 sm:p-2 md:p-3 lg:p-4 rounded-lg md:flex-row shadow-sm justify-between items-center">
+          <div className="flex gap-1 items-center md:flex-row flex-wrap md:justify-center">
             <Input
-              label="Select Date:"
               type="date"
               value={inputDate}
               onChange={(e) => setInputDate(e.target.value)}
@@ -103,6 +117,12 @@ const Attendance = ({ students, isLoading }) => {
               label="Select Department"
               value={selectedDepartment}
               onChange={(e) => setSelectedDepartment(e.target.value)}
+            />
+            <Select
+              options={batch}
+              label="Select Batch"
+              value={selectedBatch}
+              onChange={(e) => setSelectedBatch(e.target.value)}
             />
           </div>
           <div>
@@ -148,6 +168,7 @@ const Attendance = ({ students, isLoading }) => {
                     Name
                   </th>
                   <th className="w-max">Department</th>
+                  <th className="w-max">Batch</th>
                   {daysInMonth.map((day) => (
                     <th key={day}>{day}</th>
                   ))}
@@ -168,6 +189,9 @@ const Attendance = ({ students, isLoading }) => {
                     </td>
                     <td className="px-4 py-2 text-center w-max whitespace-nowrap">
                       {student.department}
+                    </td>
+                    <td className="px-4 py-2 text-center w-max whitespace-nowrap">
+                      {student.batch}
                     </td>
 
                     {daysInMonth.map((day, index) => {

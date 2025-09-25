@@ -137,6 +137,15 @@ export const findStudentById = async (id) => {
   return rows[0] || null;
 };
 
+// Find student by ID number (unique business identifier)
+export const findStudentByIdNumber = async (id_number) => {
+  const [rows] = await db.execute(
+    "SELECT * FROM students WHERE id_number = ?",
+    [id_number]
+  );
+  return rows[0] || null;
+};
+
 // Update student
 export const updateStudentQuery = async ({
   fullname,

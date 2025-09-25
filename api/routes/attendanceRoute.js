@@ -17,6 +17,7 @@ router.get(
   fetchStudentsWithAttendance
 );
 
-// router.get("/get-students", fetchAttendance);
+// Dashboard summary endpoint
+router.get("/get-attendance", authenticateUser, fetchAttendance);
 
 export default router;

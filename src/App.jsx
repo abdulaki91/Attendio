@@ -1,4 +1,3 @@
-import { KindeProvider } from "@kinde-oss/kinde-auth-react";
 import Home from "./pages/HomePage";
 import { Toaster } from "react-hot-toast";
 import Dashboard from "./pages/Dashboard";
@@ -12,10 +11,7 @@ import Attendance from "./pages/Attendance";
 import Profile from "./pages/Profile";
 import SignupPage from "./pages/SignUpPage";
 import CheckEmailPage from "./pages/CheckEmailPage";
-import { useFetchStudents } from "./hooks/useFetchStudents";
 function App() {
-  const { data: students = [], isLoading } = useFetchStudents();
-
   return (
     <>
       <BrowserRouter>
@@ -27,7 +23,7 @@ function App() {
             <Route path="/settings" element={<Settings />} />
             <Route
               path="/attendance"
-              element={<Attendance students={students} isLoading={isLoading} />}
+              element={<Attendance />}
             />
             <Route path="/profile" element={<Profile />} />
           </Route>

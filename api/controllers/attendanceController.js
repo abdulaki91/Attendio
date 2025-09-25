@@ -38,10 +38,10 @@ export const markAttendance = async (req, res, next) => {
 export const fetchStudentsWithAttendance = async (req, res, next) => {
   try {
     const teacher_id = req.user.id; // logged-in teacher
-    const { month, department, batch } = req.query;
+    const { date, department, batch } = req.query;
 
     const students = await getStudentsWithAttendance(teacher_id, {
-      month,
+      date,
       department,
       batch,
     });
@@ -73,13 +73,12 @@ export const fetchPresentStudents = async (req, res, next) => {
 // All students grouped into present & absent
 export const fetchAttendance = async (req, res, next) => {
   try {
-    const { date, grade } = req.query;
+    const { date, department, batch } = req.query;
 
     // 1. Get all students (optionally filter by grade)
     let allStudents = await getAllStudents();
-    if (grade) {
-      allStudents = allStudents.filter((s) => s.grade === grade);
-    }
+    if (department) allStudents = allStudents.filter((s) => s.department === department);
+    if (batch) allStudents = allStudents.filter((s) => s.batch === batch);
 
     // 2. Get present students for that date
     const presentStudents = await getStudentsByStatus("Present", date);
