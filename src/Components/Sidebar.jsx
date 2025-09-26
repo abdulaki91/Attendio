@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { X, LayoutDashboard, User, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -63,17 +63,6 @@ export default function Sidebar({ isOpen, setIsOpen }) {
           </div>
 
           {/* User Info */}
-          <div className="p-4 flex items-center gap-3 text-sm">
-            <img
-              src="https://i.pravatar.cc/40"
-              alt="User Avatar"
-              className="w-10 h-10 rounded-full"
-            />
-            <div className="truncate">
-              <p className="font-medium">John Doe</p>
-              <p className="text-sm opacity-70 truncate">john.doe@email.com</p>
-            </div>
-          </div>
         </nav>
       </div>
 
@@ -101,8 +90,6 @@ export default function Sidebar({ isOpen, setIsOpen }) {
               />
             </svg>
           </button>
-
-          <span className="ml-2 font-bold text-base">Dashboard</span>
         </div>
 
         {/* Your <Navbar /> component or page content can go here */}

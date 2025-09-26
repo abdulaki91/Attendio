@@ -11,7 +11,6 @@ import { useDepartments } from "../hooks/useDepartments";
 const Attendance = () => {
   const [date, setDate] = useState("");
   const [inputDate, setInputDate] = useState("");
-  const [department, setDepartment] = useState([]);
   const [batch, setBatch] = useState([]);
   const [selectedBatch, setSelectedBatch] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
@@ -29,16 +28,13 @@ const Attendance = () => {
     batch: selectedBatch,
   });
   // Fetch distinct departments from backend (per teacher)
-  const { data: deptOptions = [] } = useDepartments();
-  useEffect(() => {
-    setDepartment(deptOptions);
-  }, [deptOptions]);
+  const { data: department = [] } = useDepartments();
 
   // Collect unique batches
   useEffect(() => {
     const fetchedBatches = students.map((s) => s.batch);
     setBatch([...new Set(fetchedBatches)]);
-  }, [students]);
+  }, []);
 
   // Default date = today (as string YYYY-MM-DD)
   useEffect(() => {
@@ -49,7 +45,7 @@ const Attendance = () => {
       String(today.getDate()).padStart(2, "0"),
     ].join("-");
     setDate(localDate);
-  }, [students]);
+  }, []);
 
   // Days in the current month (pure numbers, no Date conversion to string)
   const daysInMonth = date

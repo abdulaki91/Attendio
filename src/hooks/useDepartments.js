@@ -4,9 +4,10 @@ import baseUri from "../baseURI/BaseUri";
 import { useAuth } from "../context/AuthContext";
 
 const fetchDepartments = async (token) => {
-  const { data } = await axios.get(`${baseUri}/students/departments`, {
+  const { data } = await axios.get(`${baseUri}/students/get-departments`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+  console.log(data);
   return Array.isArray(data) ? data : data.data || [];
 };
 
@@ -18,5 +19,3 @@ export const useDepartments = () => {
     enabled: Boolean(token),
   });
 };
-
-

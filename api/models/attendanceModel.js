@@ -18,24 +18,19 @@ export const createAttendanceTable = () => {
   `;
   // Try to ensure the unique key is (student_id, attendance_date, teacher_id)
   // In case an older index exists, adjust it safely.
-  return db
-    .execute(sql)
-    .then(async () => {
-      try {
-        await db.execute(
-          `ALTER TABLE attendance DROP INDEX unique_attendance;`
-        );
-      } catch (e) {
-        // index may not exist; ignore
-      }
-      try {
-        await db.execute(
-          `ALTER TABLE attendance ADD UNIQUE KEY unique_attendance_teacher (student_id, attendance_date, teacher_id);`
-        );
-      } catch (e) {
-        // already updated; ignore
-      }
-    });
+  return db.execute(sql).then(async () => {
+    try {
+      await db.execute(
+        `ALTER TABLE attendance ADD UNIQUE KEY unique_attendance_teacher (student_id, attendance_date, teacher_id);`
+      );
+    } catch (e) {
+      // already updated; ignore
+      console.log(
+        "Unique key likely already exists, skipping alteration.",
+        e.message
+      );
+    }
+  });
 };
 
 // Toggle attendance record (date-based only)
@@ -58,10 +53,10 @@ export const toggleAttendanceRecord = async ({
     const currentStatus = rows[0].status;
     let newStatus = currentStatus === "Present" ? "Absent" : "Present";
 
-    await db.execute(
-      `UPDATE attendance SET status = ? WHERE id = ?`,
-      [newStatus, rows[0].id]
-    );
+    await db.execute(`UPDATE attendance SET status = ? WHERE id = ?`, [
+      newStatus,
+      rows[0].id,
+    ]);
 
     return `Attendance updated: ${newStatus}`;
   } else {
@@ -98,10 +93,6 @@ export const fetchAttendanceByStudentId = async (studentId) => {
 // Fetch students with their attendance for the logged-in teacher
 export const getStudentsWithAttendance = async (teacher_id, filters = {}) => {
   const { date, department, batch } = filters;
-  console.log("teacher_id", teacher_id);
-  console.log("date", date);
-  console.log("department", department);
-  console.log("batch", batch);
 
   // Build SQL in parts to keep placeholder ordering predictable
   let selectClause = `

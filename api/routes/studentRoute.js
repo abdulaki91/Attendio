@@ -4,6 +4,7 @@ import {
   deleteStudent,
   editStudent,
   fetchStudentsWithAttendance,
+  getDepartments,
   getStudents,
   initializeStudentTable,
 } from "../controllers/studentController.js";
@@ -25,5 +26,6 @@ router.put("/edit/:id", authenticateUser, editStudent);
 
 // Delete student by ID
 router.delete("/delete/:id", authenticateUser, deleteStudent);
+router.get("/get-departments", authenticateUser, getDepartments);
 
 export default router;

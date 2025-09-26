@@ -249,9 +249,11 @@ export const deleteStudent = async (req, res) => {
 // GET /students/departments
 export const getDepartments = async (req, res) => {
   try {
-    const teacher_id = req.user?.id;
-    if (!teacher_id) return res.status(401).json({ message: "Unauthorized" });
-    const departments = await getDepartmentsByTeacher(teacher_id);
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const departments = await getDepartmentsByTeacher(req.user.id);
     return res.status(200).json({ data: departments });
   } catch (err) {
     console.error(err);

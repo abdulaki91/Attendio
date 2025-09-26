@@ -7,6 +7,7 @@ import baseUri from "../baseURI/BaseUri";
 import toast from "react-hot-toast";
 import userAvatar from "../assets/images/user.png";
 import { useAuth } from "../context/AuthContext";
+import ThemeSelector from "../Components/ThemeController";
 
 export default function SettingPage() {
   const navigate = useNavigate();
@@ -108,9 +109,15 @@ export default function SettingPage() {
           <h1 className="text-3xl font-extrabold tracking-tight text-primary">
             Settings
           </h1>
-          <button className="btn btn-error btn-outline" onClick={handleLogout}>
-            Log Out
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              className="btn btn-error btn-outline"
+              onClick={handleLogout}
+            >
+              Log Out
+            </button>
+            <ThemeSelector />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

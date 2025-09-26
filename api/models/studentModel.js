@@ -131,7 +131,6 @@ export const countStudents = () => {
   return db.execute(sql);
 };
 
-// Get distinct departments for a teacher
 export const getDepartmentsByTeacher = async (teacher_id) => {
   const sql = `
     SELECT DISTINCT department

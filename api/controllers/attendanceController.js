@@ -77,7 +77,8 @@ export const fetchAttendance = async (req, res, next) => {
 
     // 1. Get all students (optionally filter by grade)
     let allStudents = await getAllStudents();
-    if (department) allStudents = allStudents.filter((s) => s.department === department);
+    if (department)
+      allStudents = allStudents.filter((s) => s.department === department);
     if (batch) allStudents = allStudents.filter((s) => s.batch === batch);
 
     // 2. Get present students for that date

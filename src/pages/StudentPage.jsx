@@ -72,7 +72,7 @@ export default function Student() {
     );
   }
   return (
-    <div className="flex flex-col min-h-screen bg-base-100">
+    <div className="flex flex-col h-screen bg-base-100">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-4 py-3 border-b">
         <h1 className="font-bold text-lg md:text-xl">Students</h1>
@@ -134,14 +134,12 @@ export default function Student() {
       </div>
 
       {/* Table */}
-      <div className="px-4 pb-6 flex-1">
-        <div className="overflow-x-auto rounded-md border">
-          <Table
-            data={filteredStudents}
-            onEdit={handleEditStudent}
-            onDelete={handleDeleteStudent}
-          />
-        </div>
+      <div className="overflow-x-auto rounded-md border">
+        <Table
+          data={filteredStudents}
+          onEdit={handleEditStudent}
+          onDelete={handleDeleteStudent}
+        />
       </div>
 
       {/* Edit Modal */}
