@@ -9,7 +9,7 @@ const studentRoutes = await import("./routes/studentRoute.js");
 const attendanceRoute = await import("./routes/attendanceRoute.js");
 
 const app = express();
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 app.use("/api/users", userRoutes.default);

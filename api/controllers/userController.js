@@ -45,7 +45,7 @@ export const registerUser = async (req, res) => {
     await insertUser(name, email, hashedPassword, verificationToken);
 
     // 4) Send email
-    const verifyUrl = `${process.env.CLIENT_URL}:5000/api/users/verify/${verificationToken}`;
+    const verifyUrl = `${process.env.BACKEND_URL}/api/users/verify/${verificationToken}`;
     await sendEmail({
       email,
       subject: "Verify your account",
@@ -76,7 +76,7 @@ export const verifyToken = async (req, res) => {
     await verifyUser(user[0].id);
 
     // 3) Redirect to frontend login page
-    return res.redirect(`${process.env.CLIENT_URL}:5173/login?verified=true`);
+    return res.redirect(`${process.env.CLIENT_URL}/login?verified=true`);
     // e.g., http://localhost:3000/login for React frontend
   } catch (err) {
     console.log(err);
@@ -172,7 +172,7 @@ export const updateUser = async (req, res, next) => {
       });
 
       // Send verification email
-      const verifyUrl = `${process.env.CLIENT_URL}:5000/api/users/verify/${verificationToken}`;
+      const verifyUrl = `${process.env.BACKEND_URL}/api/users/verify/${verificationToken}`;
       await sendEmail({
         email,
         subject: "Verify your new email address",
