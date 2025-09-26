@@ -131,6 +131,18 @@ export const countStudents = () => {
   return db.execute(sql);
 };
 
+// Get distinct departments for a teacher
+export const getDepartmentsByTeacher = async (teacher_id) => {
+  const sql = `
+    SELECT DISTINCT department
+    FROM students
+    WHERE teacher_id = ?
+    ORDER BY department ASC
+  `;
+  const [rows] = await db.execute(sql, [teacher_id]);
+  return rows.map((r) => r.department).filter(Boolean);
+};
+
 // Find student by ID number
 export const findStudentById = async (id) => {
   const [rows] = await db.execute("SELECT * FROM students WHERE id = ?", [id]);

@@ -8,6 +8,7 @@ import {
   findStudentByIdNumber,
   getStudentsWithAttendance,
   updateStudentQuery,
+  getDepartmentsByTeacher,
 } from "../models/studentModel.js";
 import db from "../config/db.config.js";
 export const initializeStudentTable = async (req, res, next) => {
@@ -242,5 +243,18 @@ export const deleteStudent = async (req, res) => {
     res
       .status(500)
       .json({ message: "Failed to delete student.", error: err.message });
+  }
+};
+
+// GET /students/departments
+export const getDepartments = async (req, res) => {
+  try {
+    const teacher_id = req.user?.id;
+    if (!teacher_id) return res.status(401).json({ message: "Unauthorized" });
+    const departments = await getDepartmentsByTeacher(teacher_id);
+    return res.status(200).json({ data: departments });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Failed to fetch departments" });
   }
 };

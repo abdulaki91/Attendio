@@ -1,4 +1,4 @@
-import { getAttendanceSummaryByDepartment } from "../models/analyticsModel.js";
+import { getAttendanceSummaryByDepartment, getDailyTrend } from "../models/analyticsModel.js";
 
 export const fetchAttendanceSummary = async (req, res, next) => {
   try {

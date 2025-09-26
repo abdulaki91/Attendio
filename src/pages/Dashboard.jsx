@@ -1,18 +1,19 @@
 import { useEffect, useState } from "react";
 import Select from "../Components/Select";
 import { CheckCircle, GraduationCap, XCircle } from "lucide-react";
-import BarChartComponent from "../Components/Dashboard/Barchart";
 import Card from "../Components/Card";
 import axios from "axios";
 import baseUri from "../baseURI/BaseUri";
+import { useDepartments } from "../hooks/useDepartments";
 
 export default function Dashboard() {
   const [selectedDate, setSelectedDate] = useState("");
-  const [selectedGrade, setSelectedGrade] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState("");
   const [students, setStudents] = useState([]);
   const [attendance, setAttendance] = useState([]);
-const gradeStudents = selectedGrade
-  ? students.filter((s) => s.grade === selectedGrade)
+  const { data: deptOptions = [] } = useDepartments();
+const deptStudents = selectedDepartment
+  ? students.filter((s) => s.department === selectedDepartment)
   : students;
 
 const presentCount = attendance.filter((s) => s.status === "present").length;
@@ -20,7 +21,7 @@ const presentCount = attendance.filter((s) => s.status === "present").length;
 const cardData = [
   {
     title: "Total Students",
-    value: gradeStudents.length,
+    value: deptStudents.length,
     icon: <GraduationCap size={22} color="blue" />,
   },
   {
@@ -30,55 +31,18 @@ const cardData = [
   },
   {
     title: "Total Absent",
-    value: gradeStudents.length - presentCount,
+    value: deptStudents.length - presentCount,
     icon: <XCircle size={22} color="red" />,
   },
 ];
 
-  // // Fetch students from DB
-  // useEffect(() => {
-  //   const fetchStudents = async () => {
-  //     try {
-  //       const response = await axios.get(`${baseUri}/students/get-students`);
-  //       setStudents(response.data);
-  //     } catch (err) {
-  //       console.error(err);
-  //     }
-  //   };
-  //   fetchStudents();
-  // }, []);
-
-  // Fetch attendance whenever date or grade changes
-  useEffect(() => {
-    // if (!selectedDate) return;
-
-    const fetchAttendance = async () => {
-      try {
-        const response = await axios.get(
-          `${baseUri}/attendance/get-attendance`,
-          {
-            params: { date: selectedDate, grade: selectedGrade },
-          }
-        );
-
-        const normalized = response.data.map((s) => ({
-          ...s,
-          status: s.status ? s.status.toLowerCase() : "absent",
-        }));
-
-        setAttendance(normalized);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchAttendance();
-  }, [selectedDate, selectedGrade]);
+  
 
   return (
     <div className="p-4 text-sm md:textarea-md lg:text-lg flex justify-around flex-col">
       <div className="flex justify-between items-center">
         <h1 className="text-accent">Dashboard</h1>
-        <div className="flex gap-3">
+        <div className="flex gap-3 items-center justify-center">
           <input
             className="input input-bordered border-blue-400 w-max"
             type="date"
@@ -88,10 +52,10 @@ const cardData = [
             id="dashboard-date"
           />
           <Select
-            options={["6th", "7th", "8th"]}
-            label="Select Grade"
-            value={selectedGrade}
-            onChange={setSelectedGrade}
+            options={deptOptions}
+            label="Select Department"
+            value={selectedDepartment}
+            onChange={(e) => setSelectedDepartment(e.target.value)}
           />
         </div>
       </div>
@@ -108,7 +72,9 @@ const cardData = [
       </div>
 
       <div className="flex justify-between items-center mt-6">
-        <BarChartComponent attendance={attendance} />
+      </div>
+
+      <div className="flex justify-between items-center mt-6">
       </div>
     </div>
   );

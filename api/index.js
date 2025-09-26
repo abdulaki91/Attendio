@@ -7,7 +7,6 @@ dotenv.config();
 const userRoutes = await import("./routes/userRoute.js");
 const studentRoutes = await import("./routes/studentRoute.js");
 const attendanceRoute = await import("./routes/attendanceRoute.js");
-const analyticsRoute = await import("./routes/analyticsRoute.js");
 
 const app = express();
 app.use(cors());
@@ -16,7 +15,6 @@ app.use(express.json());
 app.use("/api/users", userRoutes.default);
 app.use("/api/students", studentRoutes.default);
 app.use("/api/attendance", attendanceRoute.default);
-app.use("/api/analytics", analyticsRoute.default);
 // Test MySQL connection on startup
 (async () => {
   try {

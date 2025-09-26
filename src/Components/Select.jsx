@@ -1,16 +1,16 @@
-export default function Select({ options, label = "", onChange, value }) {
+export default function Select({ options, label = "", onChange, value, placeholder = "", className = "" }) {
   return (
-    <div className="text-xs md:text-sm lg:text-base  items-center justify-center flex flex-col md:flex-row md:items-center">
+    <div className={`input-wrapper flex items-center w-max justify-center text-xs md:text-sm lg:text-base ${className} `}>
       <select
-        className="select select-info  w-max border-blue-400 m-2"
+        className={`select m-2  w-full text-xs md:text-sm lg:text-base select-bordered border-blue-400 `}
         onChange={onChange}
         value={value || ""}
       >
-        <option value="">{label}</option>
+        <option value="">{placeholder || label}</option>
         {options.map((option) => (
           <option key={option} value={option}>
             {option}
-          </option>
+          </option>   
         ))}
       </select>
     </div>

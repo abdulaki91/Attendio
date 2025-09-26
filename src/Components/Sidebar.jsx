@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import { X, LayoutDashboard, User, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../Components/NavBar";
 
 export default function Sidebar({ isOpen, setIsOpen }) {
   const [active, setActive] = useState("Dashboard");
   const navigate = useNavigate();
-
   const menuItems = [
     {
       name: "Dashboard",
@@ -25,38 +23,38 @@ export default function Sidebar({ isOpen, setIsOpen }) {
   };
 
   return (
-    <div className="flex container bg-base-200">
+    <div className="flex container bg-base-100 text-base-content">
       {/* Sidebar */}
       <div
         className={`fixed top-0 left-0 h-full shadow-lg transition-all duration-300 z-40
-        ${
-          isOpen ? "w-24 md:w-40 sm:w-32 lg:w-64" : "w-0 lg:w-64"
-        } overflow-hidden text-xs sm:text-sm`}
+    ${isOpen ? "w-24 sm:w-40 lg:w-64" : "w-0 lg:w-64"} 
+    overflow-hidden bg-base-200`}
       >
-        {/* Logo */}
-        <div className="flex items-center  justify-between p-4  ">
-          <h1 className="text-sm sm:text-sm font-bold ">Attendio</h1>
+        {/* Logo + Close */}
+        <div className="flex items-center justify-between p-4">
+          <h1 className="text-base font-bold">Attendio</h1>
+          {/* Close only on mobile */}
           <button
             onClick={() => setIsOpen(false)}
-            className="lg:hidden text-gray- text-sm dark:text-gray-300"
+            className="lg:hidden text-base-content"
           >
-            <X size={20} className="hover:text-red-500 text-sm" />
+            <X size={20} className="hover:text-error" />
           </button>
         </div>
 
         {/* Menu */}
-        <nav className="mt-16 flex flex-col justify-between h-[calc(100%-4rem)]">
+        <nav className="mt-8 flex flex-col justify-between h-[calc(100%-4rem)]">
           <div>
             {menuItems.map((item, index) => (
               <button
                 key={index}
                 onClick={() => handleNavigation(item)}
-                className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 w-full text-left transition
-                  ${
-                    active === item.name
-                      ? "bg-base-300 dark:bg-gray-800  "
-                      : " hover:bg-base-300  dark:hover:bg-gray-600"
-                  }`}
+                className={`flex items-center gap-3 px-4 py-2 w-full text-sm transition rounded-md
+              ${
+                active === item.name
+                  ? "bg-base-300 font-medium"
+                  : "hover:bg-base-300"
+              }`}
               >
                 {item.icon}
                 <span className="truncate">{item.name}</span>
@@ -65,19 +63,15 @@ export default function Sidebar({ isOpen, setIsOpen }) {
           </div>
 
           {/* User Info */}
-          <div className="p-4 flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
+          <div className="p-4 flex items-center gap-3 text-sm">
             <img
               src="https://i.pravatar.cc/40"
               alt="User Avatar"
-              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full"
+              className="w-10 h-10 rounded-full"
             />
             <div className="truncate">
-              <p className="font-medium text-gray-800 dark:text-white">
-                John Doe
-              </p>
-              <p className="text-gray-500 dark:text-gray-400 truncate">
-                john.doe@email.com
-              </p>
+              <p className="font-medium">John Doe</p>
+              <p className="text-sm opacity-70 truncate">john.doe@email.com</p>
             </div>
           </div>
         </nav>
@@ -85,7 +79,33 @@ export default function Sidebar({ isOpen, setIsOpen }) {
 
       {/* Main Content + Navbar */}
       <div className="flex-1 lg:ml-64">
-        <Navbar onMenuClick={() => setIsOpen(true)} />
+        <div className="navbar bg-base-100 shadow-sm px-4">
+          {/* Hamburger (only on mobile/tablet) */}
+          <button
+            onClick={() => setIsOpen(true)}
+            className="btn btn-ghost btn-sm lg:hidden"
+          >
+            {/* DaisyUI already ships with an icon, but using Lucide is fine */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+
+          <span className="ml-2 font-bold text-base">Dashboard</span>
+        </div>
+
+        {/* Your <Navbar /> component or page content can go here */}
       </div>
     </div>
   );

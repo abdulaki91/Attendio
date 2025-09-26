@@ -49,53 +49,63 @@ export default function AddStudentModal({ label }) {
   return (
     <div>
       <dialog id="add_student_modal" className="modal">
-        <div className="modal-box">
-          <h3 className="font-bold text-lg">{label}</h3>
-          <form onSubmit={handleSubmit} className="space-y-3">
-            {/* Fixed fields */}
+        <div className="modal-box max-w-2xl p-0 overflow-hidden">
+          <div className="bg-gradient-to-r from-secondary/20 via-secondary/10 to-transparent px-6 py-4 border-b border-base-300/50 flex items-center justify-between">
+            <h3 className="font-bold text-xl text-secondary">{label}</h3>
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={() =>
+                document.getElementById("add_student_modal").close()
+              }
+            >
+              ✕
+            </button>
+          </div>
+
+          <form
+            onSubmit={handleSubmit}
+            className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5"
+          >
             <Input
-              label="Fullname"
               placeholder="Enter full name"
               value={form.fullname}
               onChange={(e) => handleChange("fullname", e.target.value)}
             />
             <Input
-              label="Department"
-              placeholder="Enter department"
-              value={form.department}
-              onChange={(e) => handleChange("department", e.target.value)}
-            />
-            <Input
-              label="ID Number"
               placeholder="Enter ID number"
               value={form.id_number}
               onChange={(e) => handleChange("id_number", e.target.value)}
             />
             <Input
-              label="Batch"
+              placeholder="Enter department"
+              value={form.department}
+              onChange={(e) => handleChange("department", e.target.value)}
+            />
+            <Select
+              className="w-full"
+              placeholder="Select gender"
+              options={["Male", "Female", "Other"]}
+              value={form.gender}
+              onChange={(e) => handleChange("gender", e.target.value)}
+            />
+            <Input
               placeholder="Enter batch (optional)"
               value={form.batch}
               onChange={(e) => handleChange("batch", e.target.value)}
             />
             <Input
-              label="Year"
               type="number"
               min={2000}
               value={form.year}
               onChange={(e) => handleChange("year", e.target.value)}
             />
 
-            <Select
-              label="Gender"
-              options={["Male", "Female"]}
-              value={form.gender}
-              onChange={(e) => handleChange("gender", e.target.value)}
-            />
-
-            <div className="modal-action">
+            {/* Buttons row */}
+            <div className="flex items-center justify-end gap-2 pt-4 border-t border-base-300/50 col-span-1 md:col-span-2">
               <button
                 type="button"
-                className="btn"
+                className="btn btn-ghost"
                 onClick={() =>
                   document.getElementById("add_student_modal").close()
                 }
@@ -108,6 +118,9 @@ export default function AddStudentModal({ label }) {
             </div>
           </form>
         </div>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
       </dialog>
     </div>
   );

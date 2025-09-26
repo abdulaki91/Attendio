@@ -7,6 +7,7 @@ import Input from "../Components/Input";
 import usePrint from "../hooks/usePrint";
 import formatLocaldate from "../utils/formatLocaldate";
 import { useAttendanceStudents } from "../hooks/useAttendanceStudents";
+import { useDepartments } from "../hooks/useDepartments";
 const Attendance = () => {
   const [date, setDate] = useState("");
   const [inputDate, setInputDate] = useState("");
@@ -27,11 +28,11 @@ const Attendance = () => {
     department: selectedDepartment,
     batch: selectedBatch,
   });
-  // Collect unique departments
+  // Fetch distinct departments from backend (per teacher)
+  const { data: deptOptions = [] } = useDepartments();
   useEffect(() => {
-    const fetchedDepartments = students.map((s) => s.department);
-    setDepartment([...new Set(fetchedDepartments)]);
-  }, [students]);
+    setDepartment(deptOptions);
+  }, [deptOptions]);
 
   // Collect unique batches
   useEffect(() => {
@@ -101,7 +102,7 @@ const Attendance = () => {
   };
 
   return (
-    <div className="p-1 sm:p-2 md:p-4 lg:p-6 bg-base-300 space-y-6 border  border-blue-400 rounded-lg">
+    <div className="p-1 sm:p-2 md:p-4 lg:p-6 bg-base-300 space-y-6 rounded-lg">
       <h1 className="text-2xl font-bold"> Attendance</h1>
       <div className=" flex flex-col sm:flex-row gap-2 sm:gap-0 sm:justify-between md:items-center md:gap-1 text-xs md:text-sm lg:text-base">
         {/* Header */}

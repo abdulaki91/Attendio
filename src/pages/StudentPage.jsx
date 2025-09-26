@@ -72,26 +72,29 @@ export default function Student() {
     );
   }
   return (
-    <div>
+    <div className="flex flex-col min-h-screen bg-base-100">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 p-2">
-        <h1 className="font-bold">Students</h1>
-        <div className="flex gap-2">
-          <div className="p-2 bg-base-200 rounded">
-            <p>Results: {filteredStudents.length}</p>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-4 py-3 border-b">
+        <h1 className="font-bold text-lg md:text-xl">Students</h1>
+
+        <div className="flex flex-wrap gap-2">
+          <div className="px-3 py-2 bg-base-200 rounded-md">
+            <p className="text-sm md:text-base">
+              Results: {filteredStudents.length}
+            </p>
           </div>
 
-          <div>
-            <button
-              className="btn"
-              onClick={() =>
-                document.getElementById("add_student_modal").showModal()
-              }
-            >
-              Add New Student
-            </button>
-          </div>
+          <button
+            className="btn btn-primary"
+            onClick={() =>
+              document.getElementById("add_student_modal").showModal()
+            }
+          >
+            Add New Student
+          </button>
+
           <AddStudentModal
+            label={`Add New Student `}
             onStudentAdded={(newStudent) =>
               setStudents((prev) => [...prev, newStudent])
             }
@@ -122,7 +125,7 @@ export default function Student() {
       )}
 
       {/* Search */}
-      <div className="px-4 p-2">
+      <div className="px-4 py-3">
         <SearchInput
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -131,12 +134,14 @@ export default function Student() {
       </div>
 
       {/* Table */}
-      <div className="p-4 h-80 overflow-auto">
-        <Table
-          data={filteredStudents}
-          onEdit={handleEditStudent}
-          onDelete={handleDeleteStudent}
-        />
+      <div className="px-4 pb-6 flex-1">
+        <div className="overflow-x-auto rounded-md border">
+          <Table
+            data={filteredStudents}
+            onEdit={handleEditStudent}
+            onDelete={handleDeleteStudent}
+          />
+        </div>
       </div>
 
       {/* Edit Modal */}
