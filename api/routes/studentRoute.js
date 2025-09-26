@@ -4,6 +4,7 @@ import {
   deleteStudent,
   editStudent,
   fetchStudentsWithAttendance,
+  getBatches,
   getDepartments,
   getStudents,
   initializeStudentTable,
@@ -27,5 +28,6 @@ router.put("/edit/:id", authenticateUser, editStudent);
 // Delete student by ID
 router.delete("/delete/:id", authenticateUser, deleteStudent);
 router.get("/get-departments", authenticateUser, getDepartments);
+router.get("/get-batches", authenticateUser, getBatches);
 
 export default router;

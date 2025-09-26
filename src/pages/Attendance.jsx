@@ -8,13 +8,18 @@ import usePrint from "../hooks/usePrint";
 import formatLocaldate from "../utils/formatLocaldate";
 import { useAttendanceStudents } from "../hooks/useAttendanceStudents";
 import { useDepartments } from "../hooks/useDepartments";
+import { useBatches } from "../hooks/useBatch";
 const Attendance = () => {
   const [date, setDate] = useState("");
   const [inputDate, setInputDate] = useState("");
-  const [batch, setBatch] = useState([]);
+  const [batches, setBatch] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [selectedBatch, setSelectedBatch] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const { mutate: markStudent } = useMarkStudent();
+  // Fetch distinct departments from backend (per teacher)
+  const { data: fetchedDepartments = [] } = useDepartments();
+  const { data: fetchedBatches = [] } = useBatches();
   const tableRef = useRef(null);
   const { handlePrint } = usePrint(
     tableRef,
@@ -27,15 +32,11 @@ const Attendance = () => {
     department: selectedDepartment,
     batch: selectedBatch,
   });
-  // Fetch distinct departments from backend (per teacher)
-  const { data: department = [] } = useDepartments();
 
-  // Collect unique batches
   useEffect(() => {
-    const fetchedBatches = students.map((s) => s.batch);
-    setBatch([...new Set(fetchedBatches)]);
-  }, []);
-
+    setBatch(fetchedBatches);
+    setDepartments(fetchedDepartments);
+  }, [fetchedBatches, fetchedDepartments]);
   // Default date = today (as string YYYY-MM-DD)
   useEffect(() => {
     const today = new Date();
@@ -72,6 +73,7 @@ const Attendance = () => {
   const handleResetFilters = () => {
     setInputDate("");
     setSelectedDepartment("");
+    setSelectedBatch("");
   };
 
   // ✅ Construct YYYY-MM-DD directly as string
@@ -110,13 +112,13 @@ const Attendance = () => {
               onChange={(e) => setInputDate(e.target.value)}
             />
             <Select
-              options={department}
+              options={departments}
               label="Select Department"
               value={selectedDepartment}
               onChange={(e) => setSelectedDepartment(e.target.value)}
             />
             <Select
-              options={batch}
+              options={batches}
               label="Select Batch"
               value={selectedBatch}
               onChange={(e) => setSelectedBatch(e.target.value)}

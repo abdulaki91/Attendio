@@ -49,7 +49,7 @@ export default function AddStudentModal({ label }) {
   return (
     <div>
       <dialog id="add_student_modal" className="modal">
-        <div className="modal-box max-w-2xl p-0 overflow-hidden">
+        <div className="modal-box w-max p-0 overflow-hidden">
           <div className="bg-gradient-to-r from-secondary/20 via-secondary/10 to-transparent px-6 py-4 border-b border-base-300/50 flex items-center justify-between">
             <h3 className="font-bold text-xl text-secondary">{label}</h3>
             <button
@@ -96,6 +96,7 @@ export default function AddStudentModal({ label }) {
             />
             <Input
               type="number"
+              placeholder="Enter year (optional)"
               min={2000}
               value={form.year}
               onChange={(e) => handleChange("year", e.target.value)}

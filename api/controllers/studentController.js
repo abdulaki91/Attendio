@@ -9,6 +9,7 @@ import {
   getStudentsWithAttendance,
   updateStudentQuery,
   getDepartmentsByTeacher,
+  getBatchesByTeacher,
 } from "../models/studentModel.js";
 import db from "../config/db.config.js";
 export const initializeStudentTable = async (req, res, next) => {
@@ -258,5 +259,20 @@ export const getDepartments = async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Failed to fetch departments" });
+  }
+};
+
+// GET /students/batches
+export const getBatches = async (req, res) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const batches = await getBatchesByTeacher(req.user.id);
+    return res.status(200).json({ data: batches });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Failed to fetch batches" });
   }
 };

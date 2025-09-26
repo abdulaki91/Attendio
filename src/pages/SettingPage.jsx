@@ -116,7 +116,6 @@ export default function SettingPage() {
             >
               Log Out
             </button>
-            <ThemeSelector />
           </div>
         </div>
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X, LayoutDashboard, User, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
+import Navbar from "./Navbar";
 export default function Sidebar({ isOpen, setIsOpen }) {
   const [active, setActive] = useState("Dashboard");
   const navigate = useNavigate();
@@ -93,6 +93,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         </div>
 
         {/* Your <Navbar /> component or page content can go here */}
+        <Navbar />
       </div>
     </div>
   );

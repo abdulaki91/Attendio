@@ -142,6 +142,19 @@ export const getDepartmentsByTeacher = async (teacher_id) => {
   return rows.map((r) => r.department).filter(Boolean);
 };
 
+// get batches by teacher
+
+export const getBatchesByTeacher = async (teacher_id) => {
+  const sql = `
+    SELECT DISTINCT batch
+    FROM students
+    WHERE teacher_id = ?
+    ORDER BY batch ASC
+  `;
+  const [rows] = await db.execute(sql, [teacher_id]);
+  return rows.map((r) => r.batch).filter(Boolean);
+};
+
 // Find student by ID number
 export const findStudentById = async (id) => {
   const [rows] = await db.execute("SELECT * FROM students WHERE id = ?", [id]);
