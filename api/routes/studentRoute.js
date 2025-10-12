@@ -3,7 +3,7 @@ import {
   batchImportStudents,
   deleteStudent,
   editStudent,
-  fetchStudentsWithAttendance,
+  // fetchStudentsWithAttendance,
   getBatches,
   getDepartments,
   getStudents,
@@ -17,11 +17,6 @@ router.get("/initialize/create-student-table", initializeStudentTable);
 router.get("/get-students", authenticateUser, getStudents);
 router.post("/add-student", authenticateUser, addStudent);
 router.post("/batch-import", authenticateUser, batchImportStudents);
-router.get(
-  "/student-attendances",
-  authenticateUser,
-  fetchStudentsWithAttendance
-);
 // / Edit student by ID
 router.put("/edit/:id", authenticateUser, editStudent);
 

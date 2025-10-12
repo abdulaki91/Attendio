@@ -18,13 +18,12 @@ export const authenticateUser = async (req, res, next) => {
 
     // Use decoded.id to fetch from DB
     const user = await findUserById(decoded.id);
-
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Remove password before attaching
 
+    // console.log("req.user in authMiddleware:", req.user);
     req.user = user;
 
     next();

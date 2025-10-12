@@ -8,6 +8,7 @@ export default function useMarkStudent() {
   return useMutation({
     mutationKey: ["mark-student"],
     mutationFn: async ({ studentId, date }) => {
+      console.log(studentId,date)
       const response = await axios.post(
         `${baseUri}/attendance/create-attendance`,
         {

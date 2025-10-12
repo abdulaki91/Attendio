@@ -41,7 +41,7 @@ const Attendance = () => {
   useEffect(() => {
     const today = new Date();
     const localDate = [
-      today.getFullYear(),
+      today.getFullYear(), 
       String(today.getMonth() + 1).padStart(2, "0"),
       String(today.getDate()).padStart(2, "0"),
     ].join("-");
@@ -70,13 +70,14 @@ const Attendance = () => {
     return departmentMatch && dateMatch;
   });
 
+
   const handleResetFilters = () => {
     setInputDate("");
     setSelectedDepartment("");
     setSelectedBatch("");
   };
 
-  // ✅ Construct YYYY-MM-DD directly as string
+  // Construct YYYY-MM-DD directly as string
   const toggleAttendance = (studentId, day) => {
     const [year, month] = date.split("-");
     const fullDateStr = [

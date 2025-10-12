@@ -94,43 +94,45 @@ export const fetchAttendanceByStudentId = async (studentId) => {
 export const getStudentsWithAttendance = async (teacher_id, filters = {}) => {
   const { date, department, batch } = filters;
 
-  // Build SQL in parts to keep placeholder ordering predictable
-  let selectClause = `
-  SELECT  
-    s.id AS student_id,
+  if (!teacher_id) {
+    throw new Error("teacher_id is required");
+  }
+
+
+  // --- Base SELECT ---
+ let sql = `
+  SELECT 
+    s.id ,
     s.fullname,
     s.department,
     s.batch,
     s.year,
+    s.teacher_id ,
     s.id_number,
     s.gender,
     a.id AS attendance_id,
+    a.student_id,
+    a.teacher_id,
     a.status,
-    DATE_FORMAT(a.attendance_date, '%Y-%m-%d') AS attendance_date,
-    a.teacher_id`;
+DATE_FORMAT(a.attendance_date, '%Y-%m-%d') AS attendance_date
+  FROM students s
+  Left JOIN attendance a ON s.id = a.student_id
+`;
 
-  let fromClause = `
-  FROM students s`;
+  const params = [teacher_id];
 
-  // LEFT JOIN must include attendance filters to avoid converting to INNER JOIN
-  let joinClause = `
-  LEFT JOIN attendance a ON s.id = a.student_id`;
-
-  const params = [];
-
-  // Attendance filters go on the JOIN so students without attendance are kept
-  if (teacher_id !== undefined && teacher_id !== null) {
-    joinClause += ` AND a.teacher_id = ?`;
-    params.push(teacher_id);
-  }
+  // --- Filter by date if provided ---
   if (date) {
-    joinClause += ` AND a.attendance_date = ?`;
+    sql += ` AND a.attendance_date = ?`;
     params.push(date);
   }
 
-  const whereConditions = [];
 
-  // Student attribute filters belong in WHERE
+  // --- WHERE filters (student-level) ---
+  const whereConditions = [];
+  if (teacher_id) {
+    whereConditions.push("s.teacher_id= ?")
+  }
   if (department) {
     whereConditions.push("s.department = ?");
     params.push(department);
@@ -140,22 +142,26 @@ export const getStudentsWithAttendance = async (teacher_id, filters = {}) => {
     params.push(batch);
   }
 
-  let sql = selectClause + fromClause + joinClause;
   if (whereConditions.length > 0) {
-    sql += "\n  WHERE " + whereConditions.join(" AND ");
+    sql += `\nWHERE ${whereConditions.join(" AND ")}`;
   }
 
+
+  // --- Execute Query ---
   const [rows] = await db.execute(sql, params);
 
+
+  // --- Structure output ---
   const studentsMap = {};
 
   rows.forEach((row) => {
-    if (!studentsMap[row.student_id]) {
-      studentsMap[row.student_id] = {
-        student_id: row.student_id,
+    if (!studentsMap[row.id]) {
+      studentsMap[row.id] = {
+        id: row.id,
         fullname: row.fullname,
         department: row.department,
         batch: row.batch,
+        teacher_id: row.teacher_id,
         year: row.year,
         id_number: row.id_number,
         gender: row.gender,
@@ -174,6 +180,7 @@ export const getStudentsWithAttendance = async (teacher_id, filters = {}) => {
 
   return Object.values(studentsMap);
 };
+
 
 // Fetch students by status (Present / Absent)
 export const getStudentsByStatus = async (status, date) => {

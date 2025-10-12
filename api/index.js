@@ -1,21 +1,36 @@
-import db from "./config/db.config.js"; // Import your MySQL connection
-import express from "express";
-import cors from "cors";
+// Load environment variables
 import dotenv from "dotenv";
 dotenv.config();
 
-const userRoutes = await import("./routes/userRoute.js");
-const studentRoutes = await import("./routes/studentRoute.js");
-const attendanceRoute = await import("./routes/attendanceRoute.js");
+import express from "express";
+import cors from "cors";
+
+// Import MySQL connection
+import db from "./config/db.config.js";
+
+// Import routes (static import, no top-level await)
+import userRoutes from "./routes/userRoute.js";
+import studentRoutes from "./routes/studentRoute.js";
+import attendanceRoutes from "./routes/attendanceRoute.js";
 
 const app = express();
-app.use(cors({ origin: "*" }));
+
+// --- Middleware ---
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://attendio.abdiko.com"], // your frontend URL
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true, // if you use cookies or tokens
+  })
+);
 app.use(express.json());
 
-app.use("/api/users", userRoutes.default);
-app.use("/api/students", studentRoutes.default);
-app.use("/api/attendance", attendanceRoute.default);
-// Test MySQL connection on startup
+// --- Routes ---
+app.use("/api/users", userRoutes);
+app.use("/api/students", studentRoutes);
+app.use("/api/attendance", attendanceRoutes);
+
+// --- Test MySQL connection on startup ---
 (async () => {
   try {
     const [rows] = await db.query("SELECT NOW() AS now");
@@ -25,9 +40,14 @@ app.use("/api/attendance", attendanceRoute.default);
   }
 })();
 
-// Make sure your .env has PORT=5000 (or whatever port you want)
-const port = 5000;
+// --- Ping route for testing backend reachability ---
+app.get("/ping", (req, res) => {
+  res.json({ msg: "pong from Node.js backend" });
+});
 
+// --- Start server ---
+// Passenger ignores the port, but this works locally
+const port = process.env.PORT || 5000;
 app.listen(port, () => {
-  console.log(`Server running on PORT: ${port}`);
+  console.log(`✅ Server running on PORT: ${port}`);
 });

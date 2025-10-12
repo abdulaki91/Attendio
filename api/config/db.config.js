@@ -1,16 +1,20 @@
+// db.js
 import mysql from "mysql2/promise";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const db = await mysql.createConnection({
+const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
   port: process.env.DB_PORT,
+  waitForConnections: true,
+  connectionLimit: 10, // you can adjust this
+  queueLimit: 0,
 });
 
-console.log("Connected to MySQL");
+console.log("✅ Connected to MySQL using connection pool");
 
 export default db;

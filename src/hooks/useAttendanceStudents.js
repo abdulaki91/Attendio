@@ -24,7 +24,7 @@ const fetchAttendanceStudents = async (token, { date, department, batch }) => {
   // Normalize shape if backend responds with { students }
   const students = Array.isArray(data) ? data : data.students || [];
   return students.map((student) => ({
-    id: student.student_id,
+    id: student.id,
     fullname: student.fullname,
     department: student.department,
     batch: student.batch,
