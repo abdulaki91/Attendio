@@ -1,5 +1,3 @@
-import React from "react";
-import { Menu } from "lucide-react";
 import ThemeSelector from "../Components/ThemeController"; // Assuming you have a ThemeSelector component
 export default function Navbar() {
   return (
