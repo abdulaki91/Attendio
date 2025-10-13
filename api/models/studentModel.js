@@ -6,6 +6,7 @@ export const createStudentsTable = () => {
       fullname VARCHAR(255) NOT NULL,
       department VARCHAR(100) NOT NULL,
       batch VARCHAR(50),
+      section VARCHAR(50),
       year VARCHAR(50),
       id_number VARCHAR(100) UNIQUE,
       gender ENUM('Male','Female','Other') NOT NULL,
