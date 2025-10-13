@@ -92,21 +92,21 @@ export const fetchAttendanceByStudentId = async (studentId) => {
 };
 // Fetch students with their attendance for the logged-in teacher
 export const getStudentsWithAttendance = async (teacher_id, filters = {}) => {
-  const { date, department, batch } = filters;
+  const { date, department, batch, section } = filters;
 
   if (!teacher_id) {
     throw new Error("teacher_id is required");
   }
 
-
   // --- Base SELECT ---
- let sql = `
+  let sql = `
   SELECT 
     s.id ,
     s.fullname,
     s.department,
     s.batch,
     s.year,
+    s.section,
     s.teacher_id ,
     s.id_number,
     s.gender,
@@ -127,11 +127,10 @@ DATE_FORMAT(a.attendance_date, '%Y-%m-%d') AS attendance_date
     params.push(date);
   }
 
-
   // --- WHERE filters (student-level) ---
   const whereConditions = [];
   if (teacher_id) {
-    whereConditions.push("s.teacher_id= ?")
+    whereConditions.push("s.teacher_id= ?");
   }
   if (department) {
     whereConditions.push("s.department = ?");
@@ -141,15 +140,16 @@ DATE_FORMAT(a.attendance_date, '%Y-%m-%d') AS attendance_date
     whereConditions.push("s.batch = ?");
     params.push(batch);
   }
-
+  if (section) {
+    whereConditions.push("s.section = ?");
+    params.push(section);
+  }
   if (whereConditions.length > 0) {
     sql += `\nWHERE ${whereConditions.join(" AND ")}`;
   }
 
-
   // --- Execute Query ---
   const [rows] = await db.execute(sql, params);
-
 
   // --- Structure output ---
   const studentsMap = {};
@@ -180,7 +180,6 @@ DATE_FORMAT(a.attendance_date, '%Y-%m-%d') AS attendance_date
 
   return Object.values(studentsMap);
 };
-
 
 // Fetch students by status (Present / Absent)
 export const getStudentsByStatus = async (status, date) => {

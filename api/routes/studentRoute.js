@@ -5,6 +5,7 @@ import {
   editStudent,
   getBatches,
   getDepartments,
+  getSections,
   getStudents,
   initializeStudentTable,
 } from "../controllers/studentController.js";
@@ -23,5 +24,6 @@ router.put("/edit/:id", authenticateUser, editStudent);
 router.delete("/delete/:id", authenticateUser, deleteStudent);
 router.get("/get-departments", authenticateUser, getDepartments);
 router.get("/get-batches", authenticateUser, getBatches);
+router.get("/get-sections", authenticateUser, getSections);
 
 export default router;

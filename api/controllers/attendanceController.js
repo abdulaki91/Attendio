@@ -17,7 +17,6 @@ export const initializeAttendanceTable = async (req, res, next) => {
 
 // Controller
 export const markAttendance = async (req, res, next) => {
-
   try {
     const { student_id, attendance_date } = req.body;
 
@@ -39,11 +38,12 @@ export const markAttendance = async (req, res, next) => {
 export const fetchStudentsWithAttendance = async (req, res, next) => {
   try {
     const teacher_id = req.user.id; // logged-in teacher
-    const { date, department, batch } = req.query;
+    const { date, department, batch, section } = req.query;
     const students = await getStudentsWithAttendance(teacher_id, {
       date,
       department,
       batch,
+      section,
     });
 
     if (!students || students.length === 0) {

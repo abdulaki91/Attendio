@@ -197,3 +197,12 @@ export const deleteStudentQuery = async (id) => {
   const sql = "DELETE FROM students WHERE id = ?";
   await db.execute(sql, [id]);
 };
+export const getSectionsByTeacher = async (teacher_id) => {
+  const sql = `
+    SELECT DISTINCT section
+    FROM students
+    WHERE teacher_id = ?
+  `;
+  const [rows] = await db.execute(sql, [teacher_id]);
+  return rows.map((r) => r.section).filter(Boolean);
+};

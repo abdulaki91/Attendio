@@ -7,6 +7,7 @@ import {
   findStudentById,
   findStudentByIdNumber,
   getStudentsWithAttendance,
+  getSectionsByTeacher,
   updateStudentQuery,
   getDepartmentsByTeacher,
   getBatchesByTeacher,
@@ -274,5 +275,21 @@ export const getBatches = async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Failed to fetch batches" });
+  }
+};
+
+// controllers/sectionController.js
+
+export const getSections = async (req, res) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const sections = await getSectionsByTeacher(req.user.id);
+    res.status(200).json({ data: sections });
+  } catch (err) {
+    console.error("Error fetching sections:", err);
+    res.status(500).json({ message: "Failed to fetch sections" });
   }
 };

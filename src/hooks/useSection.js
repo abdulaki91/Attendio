@@ -3,7 +3,7 @@ import baseUri from "../baseURI/BaseUri";
 import { useAuth } from "../context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 const fetchSectionData = async (token) => {
-  const { data } = axios.get(`${baseUri}/students/get-section`, {
+  const { data } = await axios.get(`${baseUri}/students/get-sections`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return Array.isArray(data) ? data : data.data || [];
