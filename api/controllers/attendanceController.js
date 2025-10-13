@@ -17,6 +17,7 @@ export const initializeAttendanceTable = async (req, res, next) => {
 
 // Controller
 export const markAttendance = async (req, res, next) => {
+
   try {
     const { student_id, attendance_date } = req.body;
 

@@ -1,34 +1,40 @@
 import { useEffect, useRef, useState } from "react";
 import LoadingSpinner from "../components/LoadingSpinner";
 import Select from "../Components/Select";
-import useMarkStudent from "../hooks/useMarkStudent";
 import Button from "../Components/Button";
-import Input from "../Components/Input";
 import usePrint from "../hooks/usePrint";
 import formatLocaldate from "../utils/formatLocaldate";
+import useMarkStudent from "../hooks/useMarkStudent";
 import { useAttendanceStudents } from "../hooks/useAttendanceStudents";
 import { useDepartments } from "../hooks/useDepartments";
 import { useBatches } from "../hooks/useBatch";
+
 const Attendance = () => {
-  const [date, setDate] = useState("");
-  const [inputDate, setInputDate] = useState("");
-  const [batches, setBatch] = useState([]);
-  const [departments, setDepartments] = useState([]);
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [selectedBatch, setSelectedBatch] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
+
   const { mutate: markStudent } = useMarkStudent();
-  // Fetch distinct departments from backend (per teacher)
   const { data: fetchedDepartments = [] } = useDepartments();
   const { data: fetchedBatches = [] } = useBatches();
+
+  const [batches, setBatch] = useState([]);
+  const [departments, setDepartments] = useState([]);
+
   const tableRef = useRef(null);
   const { handlePrint } = usePrint(
     tableRef,
-    `Attendance Record for  ${
+    `Attendance Record for ${
       !selectedDepartment ? "All" : selectedDepartment
-    } Department on ${formatLocaldate(date || new Date())}`
+    } Department - ${new Date(year, month - 1).toLocaleString("default", {
+      month: "long",
+    })} ${year}`
   );
+
   const { data: students = [], isLoading } = useAttendanceStudents({
-    date: inputDate,
+    year,
+    month,
     department: selectedDepartment,
     batch: selectedBatch,
   });
@@ -37,191 +43,161 @@ const Attendance = () => {
     setBatch(fetchedBatches);
     setDepartments(fetchedDepartments);
   }, [fetchedBatches, fetchedDepartments]);
-  // Default date = today (as string YYYY-MM-DD)
-  useEffect(() => {
-    const today = new Date();
-    const localDate = [
-      today.getFullYear(), 
-      String(today.getMonth() + 1).padStart(2, "0"),
-      String(today.getDate()).padStart(2, "0"),
-    ].join("-");
-    setDate(localDate);
-  }, []);
 
-  // Days in the current month (pure numbers, no Date conversion to string)
-  const daysInMonth = date
-    ? Array.from(
-        {
-          length: new Date(date.split("-")[0], date.split("-")[1], 0).getDate(),
-        },
-        (_, i) => i + 1
-      )
-    : [];
-
-  // Filter students
-  const displayedStudents = (students || []).filter((s) => {
-    const departmentMatch =
-      !selectedDepartment || s.department === selectedDepartment;
-    const batchMatch = !selectedBatch || s.batch === selectedBatch;
-    if (!departmentMatch || !batchMatch) return false;
-    const dateMatch =
-      !inputDate || s.attendance?.some((a) => a.attendance_date === inputDate);
-
-    return departmentMatch && dateMatch;
-  });
-
+  const daysInMonth = Array.from(
+    { length: new Date(year, month, 0).getDate() },
+    (_, i) => i + 1
+  );
 
   const handleResetFilters = () => {
-    setInputDate("");
     setSelectedDepartment("");
     setSelectedBatch("");
   };
 
-  // Construct YYYY-MM-DD directly as string
+  const formattedDay = (day) =>
+    `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
   const toggleAttendance = (studentId, day) => {
-    const [year, month] = date.split("-");
-    const fullDateStr = [
-      year,
-      month.padStart(2, "0"),
-      String(day).padStart(2, "0"),
-    ].join("-");
-
-    markStudent({
-      studentId,
-      date: fullDateStr,
-    });
-  };
-
-  // ✅ Pure formatter for table checkboxes
-  const formattedDay = (day) => {
-    const [year, month] = date.split("-");
-    return [year, month.padStart(2, "0"), String(day).padStart(2, "0")].join(
-      "-"
-    );
+    markStudent({ studentId, date: formattedDay(day) });
   };
 
   return (
-    <div className="p-1 sm:p-2 md:p-4 lg:p-6 bg-base-300 space-y-6 rounded-lg">
-      <h1 className="text-2xl font-bold"> Attendance</h1>
-      <div className=" flex flex-col sm:flex-row gap-2 sm:gap-0 sm:justify-between md:items-center md:gap-1 text-xs md:text-sm lg:text-base">
-        {/* Header */}
-        <div className="flex flex-wrap sm:gap-1 md:gap-2 lg:gap-2 bg-base-100 w-max  p-1 sm:p-2 md:p-3 lg:p-4 rounded-lg md:flex-row shadow-sm justify-between items-center">
-          <div className="flex gap-1 items-center md:flex-row flex-wrap md:justify-center">
-            <Input
-              type="date"
-              value={inputDate}
-              onChange={(e) => setInputDate(e.target.value)}
-            />
-            <Select
-              options={departments}
-              label="Select Department"
-              value={selectedDepartment}
-              onChange={(e) => setSelectedDepartment(e.target.value)}
-            />
-            <Select
-              options={batches}
-              label="Select Batch"
-              value={selectedBatch}
-              onChange={(e) => setSelectedBatch(e.target.value)}
-            />
-          </div>
-          <div>
-            <div className="flex gap-2 flex-wrap flex-col md:flex-row justify-center">
-              <Button
-                onClick={handleResetFilters}
-                className="btn btn-outline  btn-secondary"
-              >
-                Remove Filters
-              </Button>
-              <Button onClick={handlePrint} className="btn btn-secondary">
-                Print Attendance
-              </Button>
-            </div>
-          </div>
+    <div className="p-2 md:p-4 lg:p-6 bg-base-300 space-y-6 rounded-lg">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Attendance</h1>
+        <p>Today is {formatLocaldate(new Date())}</p>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap gap-3 bg-base-100 p-3 rounded-lg shadow-sm justify-between items-center">
+        <div className="flex flex-wrap gap-2 items-center">
+          <Select
+            options={departments}
+            label="Select Department"
+            value={selectedDepartment}
+            onChange={(e) => setSelectedDepartment(e.target.value)}
+          />
+          <Select
+            options={batches}
+            label="Select Batch"
+            value={selectedBatch}
+            onChange={(e) => setSelectedBatch(e.target.value)}
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <select
+            className="select select-bordered select-sm md:select-md"
+            value={month}
+            onChange={(e) => setMonth(Number(e.target.value))}
+          >
+            {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+              <option key={m} value={m}>
+                {new Date(0, m - 1).toLocaleString("default", {
+                  month: "long",
+                })}
+              </option>
+            ))}
+          </select>
+
+          <input
+            type="number"
+            className="input input-bordered input-sm md:input-md w-24"
+            value={year === "" ? "" : year}
+            min="2024"
+            step="1"
+            placeholder="Year"
+            onChange={(e) => {
+              const value = e.target.value;
+              setYear(value === "" ? "" : Number(value));
+            }}
+          />
+
+          <Button
+            onClick={handleResetFilters}
+            className="btn btn-outline btn-secondary"
+          >
+            Clear Filters
+          </Button>
+
+          <Button onClick={handlePrint} className="btn btn-secondary">
+            Print
+          </Button>
         </div>
       </div>
 
-      {/* Table */}
-      {displayedStudents.length === 0 && !isLoading ? (
-        <div className="p-1 sm:p-2 md:p-4 lg:p-6 space-y-6 flex flex-col items-center w-max h-full ">
-          <h1>
-            No Students Found please try by adding students or changing filters
-          </h1>
-        </div>
-      ) : (
-        <div
-          id="attendanceTableContainer"
-          ref={tableRef}
-          className={`max-h-96 overflow-auto ${
-            isLoading ? "" : "border"
-          } scrollbar-hide border-blue-300 rounded-lg  table-container`}
-        >
-          {isLoading ? (
-            <LoadingSpinner />
-          ) : (
-            <table className="table table-zebra min-w-full scrollbar-hide text-xs md:text-sm lg:text-base">
-              <thead className="bg-base-200 sticky top-0 z-30">
-                <tr>
-                  <th>#</th>
-                  <th>ID</th>
-                  <th className="w-max sticky left-0 bg-base-200 z-20 ">
-                    Name
-                  </th>
-                  <th className="w-max">Department</th>
-                  <th className="w-max">Batch</th>
-                  {daysInMonth.map((day) => (
-                    <th key={day}>{day}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {displayedStudents.map((student, idx) => (
-                  <tr
-                    key={student.id} // ✅ use student_id from DB
-                    className="hover:bg-base-100 transition-colors "
-                  >
-                    <td className="px-4 py-2 text-center">{idx + 1}</td>
-                    <td className="px-4 py-2 text-center w-max whitespace-nowrap">
-                      {student.id_number}
-                    </td>
-                    <td className="px-4 py-2 whitespace-nowrap left-0 sticky bg-base-100 z-10">
-                      {student.fullname}
-                    </td>
-                    <td className="px-4 py-2 text-center w-max whitespace-nowrap">
-                      {student.department}
-                    </td>
-                    <td className="px-4 py-2 text-center w-max whitespace-nowrap">
-                      {student.batch}
-                    </td>
-
-                    {daysInMonth.map((day, index) => {
-                      const formattedDate = formattedDay(day);
-                      const isPresent = student.attendance?.some(
-                        (att) =>
-                          att.attendance_date == formattedDate &&
-                          att.status == "Present"
-                      );
-                      return (
-                        <td
-                          key={index} // Fallback to index if att.id is unavailable
-                          className="px-2 py-2 text-center border-[0.5px] border-accent/50"
-                        >
-                          <input
-                            type="checkbox"
-                            className="checkbox checkbox-xs md:checkbox-md lg:checkbox-base xl:checkbox-lg checkbox-primary"
-                            checked={!!isPresent}
-                            onChange={() => toggleAttendance(student.id, day)}
-                          />
-                        </td>
-                      );
-                    })}
-                  </tr>
+      {/* Attendance Table */}
+      <div
+        id="attendanceTableContainer"
+        ref={tableRef}
+        className={`max-h-96 overflow-auto border border-blue-300 rounded-lg ${
+          isLoading ? "" : "table-container"
+        }`}
+      >
+        {isLoading ? (
+          <LoadingSpinner />
+        ) : students.length === 0 ? (
+          <div className="p-6 text-center text-sm">
+            No students found. Try changing filters or adding students.
+          </div>
+        ) : (
+          <table className="table table-zebra min-w-full text-xs md:text-sm lg:text-base">
+            <thead className="bg-base-200 sticky top-0 z-30">
+              <tr>
+                <th>#</th>
+                <th>ID</th>
+                <th className="sticky left-0 bg-base-200 z-20">Name</th>
+                <th>Department</th>
+                <th>Batch</th>
+                {daysInMonth.map((day) => (
+                  <th key={day}>{day}</th>
                 ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      )}
+              </tr>
+            </thead>
+            <tbody>
+              {students.map((student, idx) => (
+                <tr
+                  key={student.id}
+                  className="hover:bg-base-100 transition-colors"
+                >
+                  <td className="text-center">{idx + 1}</td>
+                  <td className="text-center whitespace-nowrap">
+                    {student.id_number}
+                  </td>
+                  <td className="sticky left-0 bg-base-100 whitespace-nowrap z-10">
+                    {student.fullname}
+                  </td>
+                  <td className="text-center">{student.department}</td>
+                  <td className="text-center">{student.batch}</td>
+
+                  {daysInMonth.map((day) => {
+                    const formattedDate = formattedDay(day);
+                    const isPresent = student.attendance?.some(
+                      (att) =>
+                        att.attendance_date === formattedDate &&
+                        att.status === "Present"
+                    );
+                    return (
+                      <td
+                        key={day}
+                        className="text-center border-[0.5px] border-accent/50"
+                      >
+                        <input
+                          type="checkbox"
+                          className="checkbox checkbox-xs md:checkbox-md checkbox-primary"
+                          checked={!!isPresent}
+                          onChange={() => toggleAttendance(student.id, day)}
+                        />
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 };
