@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import LoadingSpinner from "../components/LoadingSpinner";
 import Select from "../Components/Select";
 import Button from "../Components/Button";
@@ -8,26 +8,39 @@ import useMarkStudent from "../hooks/useMarkStudent";
 import { useAttendanceStudents } from "../hooks/useAttendanceStudents";
 import { useDepartments } from "../hooks/useDepartments";
 import { useBatches } from "../hooks/useBatch";
+import { useSections } from "../hooks/useSection"; // ✅ new custom hook for sections
 
 const Attendance = () => {
+  // ======= STATE =======
   const [year, setYear] = useState(new Date().getFullYear());
   const [month, setMonth] = useState(new Date().getMonth() + 1);
-  const [selectedBatch, setSelectedBatch] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [selectedBatch, setSelectedBatch] = useState("");
+  const [selectedSection, setSelectedSection] = useState("");
+  const [selectedWeekdays, setSelectedWeekdays] = useState([]);
 
+  const weekdays = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+
+  // ======= HOOKS =======
   const { mutate: markStudent } = useMarkStudent();
-  const { data: fetchedDepartments = [] } = useDepartments();
-  const { data: fetchedBatches = [] } = useBatches();
-
-  const [batches, setBatch] = useState([]);
-  const [departments, setDepartments] = useState([]);
+  const { data: departments = [] } = useDepartments();
+  const { data: batches = [] } = useBatches();
+  const { data: sections = [] } = useSections();
 
   const tableRef = useRef(null);
   const { handlePrint } = usePrint(
     tableRef,
-    `Attendance Record for ${
-      !selectedDepartment ? "All" : selectedDepartment
-    } Department - ${new Date(year, month - 1).toLocaleString("default", {
+    `Attendance Record - ${
+      selectedDepartment || "All Departments"
+    } | ${new Date(year, month - 1).toLocaleString("default", {
       month: "long",
     })} ${year}`
   );
@@ -37,23 +50,22 @@ const Attendance = () => {
     month,
     department: selectedDepartment,
     batch: selectedBatch,
+    section: selectedSection, // ✅ added filter
   });
 
-  useEffect(() => {
-    setBatch(fetchedBatches);
-    setDepartments(fetchedDepartments);
-  }, [fetchedBatches, fetchedDepartments]);
+  // ======= MEMOIZED VALUES =======
+  const daysInMonth = useMemo(() => {
+    return Array.from(
+      { length: new Date(year, month, 0).getDate() },
+      (_, i) => {
+        const date = new Date(year, month - 1, i + 1);
+        const dayName = date.toLocaleString("default", { weekday: "long" });
+        return selectedWeekdays.includes(dayName) ? i + 1 : null;
+      }
+    ).filter(Boolean);
+  }, [year, month, selectedWeekdays]);
 
-  const daysInMonth = Array.from(
-    { length: new Date(year, month, 0).getDate() },
-    (_, i) => i + 1
-  );
-
-  const handleResetFilters = () => {
-    setSelectedDepartment("");
-    setSelectedBatch("");
-  };
-
+  // ======= HELPERS =======
   const formattedDay = (day) =>
     `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
@@ -61,15 +73,23 @@ const Attendance = () => {
     markStudent({ studentId, date: formattedDay(day) });
   };
 
+  const handleResetFilters = () => {
+    setSelectedDepartment("");
+    setSelectedBatch("");
+    setSelectedSection("");
+    setSelectedWeekdays([]);
+  };
+
+  // ======= RENDER =======
   return (
     <div className="p-2 md:p-4 lg:p-6 bg-base-300 space-y-6 rounded-lg">
-      {/* Header */}
+      {/* HEADER */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Attendance</h1>
         <p>Today is {formatLocaldate(new Date())}</p>
       </div>
 
-      {/* Filters */}
+      {/* FILTERS */}
       <div className="flex flex-wrap gap-3 bg-base-100 p-3 rounded-lg shadow-sm justify-between items-center">
         <div className="flex flex-wrap gap-2 items-center">
           <Select
@@ -84,8 +104,35 @@ const Attendance = () => {
             value={selectedBatch}
             onChange={(e) => setSelectedBatch(e.target.value)}
           />
+          <Select
+            options={sections}
+            label="Select Section"
+            value={selectedSection}
+            onChange={(e) => setSelectedSection(e.target.value)}
+          />
         </div>
 
+        {/* WEEKDAY SELECTION */}
+        <div className="flex flex-wrap gap-2 bg-base-200 p-2 rounded-lg">
+          {weekdays.map((day) => (
+            <label key={day} className="flex items-center gap-1 text-sm">
+              <input
+                type="checkbox"
+                checked={selectedWeekdays.includes(day)}
+                onChange={() =>
+                  setSelectedWeekdays((prev) =>
+                    prev.includes(day)
+                      ? prev.filter((d) => d !== day)
+                      : [...prev, day]
+                  )
+                }
+              />
+              {day}
+            </label>
+          ))}
+        </div>
+
+        {/* CONTROLS */}
         <div className="flex items-center gap-2">
           <select
             className="select select-bordered select-sm md:select-md"
@@ -104,14 +151,13 @@ const Attendance = () => {
           <input
             type="number"
             className="input input-bordered input-sm md:input-md w-24"
-            value={year === "" ? "" : year}
+            value={year}
             min="2024"
             step="1"
             placeholder="Year"
-            onChange={(e) => {
-              const value = e.target.value;
-              setYear(value === "" ? "" : Number(value));
-            }}
+            onChange={(e) =>
+              setYear(e.target.value === "" ? "" : Number(e.target.value))
+            }
           />
 
           <Button
@@ -127,7 +173,7 @@ const Attendance = () => {
         </div>
       </div>
 
-      {/* Attendance Table */}
+      {/* ATTENDANCE TABLE */}
       <div
         id="attendanceTableContainer"
         ref={tableRef}
@@ -150,6 +196,7 @@ const Attendance = () => {
                 <th className="sticky left-0 bg-base-200 z-20">Name</th>
                 <th>Department</th>
                 <th>Batch</th>
+                <th>Section</th>
                 {daysInMonth.map((day) => (
                   <th key={day}>{day}</th>
                 ))}
@@ -170,6 +217,7 @@ const Attendance = () => {
                   </td>
                   <td className="text-center">{student.department}</td>
                   <td className="text-center">{student.batch}</td>
+                  <td className="text-center">{student.section}</td>
 
                   {daysInMonth.map((day) => {
                     const formattedDate = formattedDay(day);
