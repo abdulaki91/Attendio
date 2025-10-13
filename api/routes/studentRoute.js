@@ -3,7 +3,6 @@ import {
   batchImportStudents,
   deleteStudent,
   editStudent,
-  // fetchStudentsWithAttendance,
   getBatches,
   getDepartments,
   getStudents,

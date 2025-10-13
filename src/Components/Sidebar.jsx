@@ -92,7 +92,6 @@ export default function Sidebar({ isOpen, setIsOpen }) {
           </button>
         </div>
 
-        {/* Your <Navbar /> component or page content can go here */}
         <Navbar />
       </div>
     </div>
