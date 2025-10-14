@@ -16,7 +16,7 @@ export const sendEmail = async (options) => {
     });
 
     const mailOptions = {
-      from: "Attenzo.com <no-reply@attenzo.com>",
+      from: "Attendio <no-reply@attendio.abdiko.com>",
       to: options.email,
       subject: options.subject,
       text: options.message, // fallback for non-HTML clients
@@ -25,7 +25,7 @@ export const sendEmail = async (options) => {
           <h2 style="color: #333; text-align: center;">Verify Your Email</h2>
           <p style="font-size: 16px; color: #555;">
             Hello <b>${options.name || "User"}</b>,<br/><br/>
-            Thank you for registering with <b>Attenzo.com</b>. Please verify your email address by clicking the button below:
+            Thank you for registering with <b>Attendio</b>. Please verify your email address by clicking the button below:
           </p>
           <div style="text-align: center; margin: 30px 0;">
             <a href="${
