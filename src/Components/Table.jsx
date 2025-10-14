@@ -14,7 +14,7 @@ export default function Table({ data = [], onEdit, onDelete }) {
     "id_number",
     "department",
     "batch",
-    "year",
+    "section",
     "gender",
   ];
 
