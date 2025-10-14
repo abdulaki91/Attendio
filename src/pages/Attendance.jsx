@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import LoadingSpinner from "../components/LoadingSpinner";
 import Select from "../Components/Select";
 import Button from "../Components/Button";
@@ -9,7 +9,6 @@ import { useAttendanceStudents } from "../hooks/useAttendanceStudents";
 import { useDepartments } from "../hooks/useDepartments";
 import { useBatches } from "../hooks/useBatch";
 import { useSections } from "../hooks/useSection"; // ✅ new custom hook for sections
-
 const Attendance = () => {
   // ======= STATE =======
   const [year, setYear] = useState(new Date().getFullYear());
@@ -17,8 +16,14 @@ const Attendance = () => {
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedBatch, setSelectedBatch] = useState("");
   const [selectedSection, setSelectedSection] = useState("");
-  const [selectedWeekdays, setSelectedWeekdays] = useState([]);
-
+  const [selectedWeekdays, setSelectedWeekdays] = useState(() => {
+    try {
+      const saved = localStorage.getItem("weekdays");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const weekdays = [
     "Sunday",
     "Monday",
@@ -36,14 +41,28 @@ const Attendance = () => {
   const { data: sections = [] } = useSections();
 
   const tableRef = useRef(null);
-  const { handlePrint } = usePrint(
-    tableRef,
-    `Attendance Record - ${
-      selectedDepartment || "All Departments"
-    } | ${new Date(year, month - 1).toLocaleString("default", {
+  const formattedDate = new Date(year, month - 1).toLocaleString("default", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  const { handlePrint } = usePrint(tableRef, {
+    title: `Attendance Sheet - ${formattedDate}`,
+    department: selectedDepartment || "All Departments",
+    section: selectedSection || "All Sections",
+    batch: selectedBatch || "All Batches",
+    date: new Date(year, month - 1).toLocaleString("default", {
       month: "long",
-    })} ${year}`
-  );
+      year: "numeric",
+    }),
+  });
+  const formattedDay = (day) =>
+    `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
+  const toggleAttendance = (studentId, day) => {
+    markStudent({ studentId, date: formattedDay(day) });
+  };
 
   const { data: students = [], isLoading } = useAttendanceStudents({
     year,
@@ -66,19 +85,23 @@ const Attendance = () => {
   }, [year, month, selectedWeekdays]);
 
   // ======= HELPERS =======
-  const formattedDay = (day) =>
-    `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-
-  const toggleAttendance = (studentId, day) => {
-    markStudent({ studentId, date: formattedDay(day) });
-  };
 
   const handleResetFilters = () => {
     setSelectedDepartment("");
     setSelectedBatch("");
     setSelectedSection("");
-    setSelectedWeekdays([]);
   };
+  // handle week days
+
+  const handleSelectedWeekdays = (day) => {
+    setSelectedWeekdays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
+  };
+
+  useEffect(() => {
+    localStorage.setItem("weekdays", JSON.stringify(selectedWeekdays));
+  }, [selectedWeekdays]);
 
   // ======= RENDER =======
   return (
@@ -113,21 +136,23 @@ const Attendance = () => {
         </div>
 
         {/* WEEKDAY SELECTION */}
-        <div className="flex flex-wrap gap-2 bg-base-200 p-2 rounded-lg">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 bg-base-200 p-3 rounded-lg">
           {weekdays.map((day) => (
-            <label key={day} className="flex items-center gap-1 text-sm">
+            <label
+              key={day}
+              className={`flex items-center justify-start gap-2 text-sm bg-base-100 p-2 rounded-md shadow-sm cursor-pointer hover:bg-base-300 transition-colors ${
+                selectedWeekdays.includes(day)
+                  ? "ring-2 ring-primary bg-primary/10"
+                  : ""
+              }`}
+            >
               <input
                 type="checkbox"
+                className="checkbox checkbox-xs md:checkbox-sm checkbox-primary"
                 checked={selectedWeekdays.includes(day)}
-                onChange={() =>
-                  setSelectedWeekdays((prev) =>
-                    prev.includes(day)
-                      ? prev.filter((d) => d !== day)
-                      : [...prev, day]
-                  )
-                }
+                onChange={() => handleSelectedWeekdays(day)}
               />
-              {day}
+              <span className="truncate">{day}</span>
             </label>
           ))}
         </div>
@@ -167,8 +192,11 @@ const Attendance = () => {
             Clear Filters
           </Button>
 
-          <Button onClick={handlePrint} className="btn btn-secondary">
-            Print
+          <Button
+            onClick={handlePrint}
+            className="btn btn-secondary hover:text-accent"
+          >
+            🖨️ Print{" "}
           </Button>
         </div>
       </div>
@@ -177,7 +205,7 @@ const Attendance = () => {
       <div
         id="attendanceTableContainer"
         ref={tableRef}
-        className={`max-h-96 overflow-auto border border-blue-300 rounded-lg ${
+        className={`max-h-96 overflow-auto  ${
           isLoading ? "" : "table-container"
         }`}
       >
@@ -189,16 +217,18 @@ const Attendance = () => {
           </div>
         ) : (
           <table className="table table-zebra min-w-full text-xs md:text-sm lg:text-base">
-            <thead className="bg-base-200 sticky top-0 z-30">
+            <thead className="bg-base-100 sticky top-0 z-30">
               <tr>
-                <th>#</th>
-                <th>ID</th>
-                <th className="sticky left-0 bg-base-200 z-20">Name</th>
-                <th>Department</th>
-                <th>Batch</th>
-                <th>Section</th>
+                <th className="border ">#</th>
+                <th className="border ">ID</th>
+                <th className="sticky left-0 bg-base-200 z-20 border">Name</th>
+                <th className="border ">Department</th>
+                <th className="border ">Batch</th>
+                <th className="border ">Section</th>
                 {daysInMonth.map((day) => (
-                  <th key={day}>{day}</th>
+                  <th className="border " key={day}>
+                    {day}
+                  </th>
                 ))}
               </tr>
             </thead>

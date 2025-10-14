@@ -14,8 +14,8 @@ const buildQueryString = (params) => {
   return str ? `?${str}` : "";
 };
 
-const fetchAttendanceStudents = async (token, { date, department, batch }) => {
-  const query = buildQueryString({ date, department, batch });
+const fetchAttendanceStudents = async (token, { date, department, batch ,section}) => {
+  const query = buildQueryString({ date, department, batch ,section});
   const { data } = await axios.get(
     `${baseUri}/attendance/fetch-students-with-attendance${query}`,
     { headers: { Authorization: `Bearer ${token}` } }
@@ -28,6 +28,7 @@ const fetchAttendanceStudents = async (token, { date, department, batch }) => {
     fullname: student.fullname,
     department: student.department,
     batch: student.batch,
+    section: student.section,
     year: student.year,
     id_number: student.id_number,
     gender: student.gender,
@@ -45,5 +46,3 @@ export const useAttendanceStudents = (filters) => {
     queryFn: () => fetchAttendanceStudents(token, filters),
   });
 };
-
-
