@@ -93,6 +93,7 @@ export const fetchAttendanceByStudentId = async (studentId) => {
 // Fetch students with their attendance for the logged-in teacher
 export const getStudentsWithAttendance = async (teacher_id, filters = {}) => {
   const { date, department, batch, section } = filters;
+  console.log("section", section);
 
   if (!teacher_id) {
     throw new Error("teacher_id is required");
@@ -161,6 +162,7 @@ DATE_FORMAT(a.attendance_date, '%Y-%m-%d') AS attendance_date
         fullname: row.fullname,
         department: row.department,
         batch: row.batch,
+        section: row.section,
         teacher_id: row.teacher_id,
         year: row.year,
         id_number: row.id_number,

@@ -46,6 +46,7 @@ export const fetchStudentsWithAttendance = async (req, res, next) => {
       section,
     });
 
+    console.log("requsted", req.query);
     if (!students || students.length === 0) {
       return res.status(404).json({
         students: [],
