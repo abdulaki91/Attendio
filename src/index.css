@@ -6,63 +6,63 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 @media print {
-  /* Force landscape orientation (not supported by all browsers, but good practice) */
-
-  @page {
-    size: A4 landscape;
-  }
   body {
     -webkit-print-color-adjust: exact;
-    font-size: 12pt; /* scale font for print */
+    font-size: 10pt;
+    margin: 10mm;
   }
-  th,
-  td {
-    position: static !important;
-  }
+
   .table-container {
-    transform: scale(0.85); /* reduce size */
-    transform-origin: top left;
-    width: 118%; /* counter scale to fit page */
+    width: 100% !important;
     max-height: none !important;
     overflow: visible !important;
+    transform: none !important;
   }
- input[type="checkbox"] {
-    all: revert !important; /* revert any Tailwind/custom styles */
-    -webkit-appearance: checkbox; /* Safari/Chrome */
-    appearance: checkbox;        /* Modern browsers */
-  }
-  /* Make the table and cells more compact */
+
   table {
-    font-size: 8pt;
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    border: 1px solid #302e2e !important;
   }
 
   th,
   td {
-    padding: 2px 4px;
+    border: 0.5px solid #302e2e !important;
+    padding: 4px 6px;
+    text-align: center;
     white-space: nowrap;
+    background-color: white !important;
+    color: black !important;
   }
-
-  /* Reduce the width of the ID, Name, and Grade columns */
-  th:nth-child(1),
-  td:nth-child(1) {
-    width: 30px;
+  th {
+    background-color: #f0f0f0;
   }
-
-  th:nth-child(2),
-  td:nth-child(2) {
-    width: 100px;
+  th.sticky,
+  td.sticky {
+    position: static !important;
+    left: auto !important;
+    z-index: auto !important;
+    background: transparent !important; /* optional: or set a light bg */
   }
-
-  th:nth-child(3),
-  td:nth-child(3) {
-    width: 40px;
+  input[type="checkbox"] {
+    all: revert !important; /* reset all custom styles */
+    -webkit-appearance: checkbox; /* Safari/Chrome */
+    appearance: checkbox; /* Modern browsers */
+    width: 12px; /* optional: increase size for print */
+    height: 12px; /* optional: increase size for print */
+    margin: 0; /* remove spacing added by Tailwind */
   }
-
-  /* Hide elements you don't want to print */
   .no-print {
     display: none;
   }
+
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
 }
+
 /* Hide scrollbar but allow scrolling */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
