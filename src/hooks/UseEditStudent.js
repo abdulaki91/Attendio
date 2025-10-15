@@ -1,23 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
 import toast from "react-hot-toast";
-import baseUri from "../baseURI/BaseUri";
-import { useAuth } from "../context/AuthContext";
+import api from "../api/api";
+
 export function useEditStudent() {
   const queryClient = useQueryClient();
-  const { token } = useAuth(); // get token from context
   return useMutation({
     mutationFn: async (student) => {
-      const { data } = await axios.put(
-        `${baseUri}/students/edit/${student.id}`,
-        student,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const { data } = await api.put(`/students/edit/${student.id}`, student);
       return data;
     },
     onSuccess: () => {

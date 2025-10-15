@@ -1,12 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import baseUri from "../baseURI/BaseUri";
-import axios from "axios";
-import { useAuth } from "../context/AuthContext";
 
-const fetchStudents = async (token) => {
-  const { data } = await axios.get(`${baseUri}/students/get-students`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+import { useAuth } from "../context/AuthContext";
+import api from "../api/api";
+
+const fetchStudents = async () => {
+  const { data } = await api.get(`/students/get-students`, {});
 
   // Data already in the desired shape from backend
   return data.map((s) => ({

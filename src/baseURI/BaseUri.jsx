@@ -1,4 +1,4 @@
-const baseUri = "https://attendio-backend.abdiko.com/api";
+const baseUri = "http://localhost:8000/api";
 // https://attendio-backend.abdiko.com
 
 export default baseUri;

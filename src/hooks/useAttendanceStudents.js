@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import baseUri from "../baseURI/BaseUri";
 import { useAuth } from "../context/AuthContext";
+import api from "../api/api";
 
 const buildQueryString = (params) => {
   const qs = new URLSearchParams();
@@ -14,11 +13,13 @@ const buildQueryString = (params) => {
   return str ? `?${str}` : "";
 };
 
-const fetchAttendanceStudents = async (token, { date, department, batch ,section}) => {
-  const query = buildQueryString({ date, department, batch ,section});
-  const { data } = await axios.get(
-    `${baseUri}/attendance/fetch-students-with-attendance${query}`,
-    { headers: { Authorization: `Bearer ${token}` } }
+const fetchAttendanceStudents = async (
+  token,
+  { date, department, batch, section }
+) => {
+  const query = buildQueryString({ date, department, batch, section });
+  const { data } = await api.get(
+    `/attendance/fetch-students-with-attendance${query}`
   );
 
   // Normalize shape if backend responds with { students }

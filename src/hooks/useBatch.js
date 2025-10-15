@@ -1,13 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import baseUri from "../baseURI/BaseUri";
 import { useAuth } from "../context/AuthContext";
+import api from "../api/api";
 
-const fetchBatches = async (token) => {
-  const res = await axios.get(`${baseUri}/students/get-batches`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
+const fetchBatches = async () => {
+  const res = await api.get(`/students/get-batches`);
   // Normalize structure and safely extract batches
   const batches = res.data?.data;
 

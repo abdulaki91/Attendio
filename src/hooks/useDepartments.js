@@ -1,12 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import baseUri from "../baseURI/BaseUri";
 import { useAuth } from "../context/AuthContext";
+import api from "../api/api";
 
-const fetchDepartments = async (token) => {
-  const { data } = await axios.get(`${baseUri}/students/get-departments`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+const fetchDepartments = async () => {
+  const { data } = await api.get(`/students/get-departments`);
   return Array.isArray(data) ? data : data.data || [];
 };
 
