@@ -5,6 +5,8 @@ const api = axios.create({
   baseURL: "http://localhost:8000/api",
 });
 
+let isLoggingOut = false; // ✅ Prevent duplicate toasts & redirects
+
 // Add token before every request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
@@ -12,7 +14,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-//  Catch expired/invalid token globally
+// Catch expired/invalid token globally
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -21,23 +23,22 @@ api.interceptors.response.use(
 
       // Handle expired token or unauthorized
       if (
-        message?.toLowerCase().includes("expired") ||
-        error.response.status === 401
+        !isLoggingOut &&
+        (message?.toLowerCase().includes("expired") ||
+          error.response.status === 401)
       ) {
-        // Show backend message in toast
+        isLoggingOut = true; // ✅ Prevent multiple runs
         toast.error(message || "Session expired, please log in again");
 
-        // Remove token and redirect after 2 seconds (so user can see toast)
         setTimeout(() => {
           localStorage.removeItem("token");
           window.location.href = "/login";
+          isLoggingOut = false; // reset for future sessions
         }, 2000);
       } else if (message) {
-        // Any other backend message
         toast.error(message);
       }
     } else {
-      // Handle network or unknown errors
       toast.error("Network error. Please try again.");
     }
 
