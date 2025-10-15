@@ -1,7 +1,7 @@
 import _ from "lodash"; // optional, can use plain JS too
 import db from "../config/db.config.js";
 
-export const createAttendanceTable = () => {
+export const createAttendanceTable = async () => {
   const sql = `
     CREATE TABLE IF NOT EXISTS attendance (
       id INT AUTO_INCREMENT PRIMARY KEY,

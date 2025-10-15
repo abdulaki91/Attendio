@@ -1,20 +1,16 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
-import baseUri from "../baseURI/BaseUri";
 import toast from "react-hot-toast";
+import api from "../api/api";
 
 export default function useMarkStudent() {
   const queryClient = useQueryClient(); // <-- use existing QueryClient
   return useMutation({
     mutationKey: ["mark-student"],
     mutationFn: async ({ studentId, date }) => {
-      const response = await axios.post(
-        `${baseUri}/attendance/create-attendance`,
-        {
-          student_id: studentId,
-          attendance_date: date,
-        }
-      );
+      const response = await api.post(`/attendance/create-attendance`, {
+        student_id: studentId,
+        attendance_date: date,
+      });
       return response.data;
     },
     onError: (error) => {

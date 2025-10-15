@@ -1,19 +1,17 @@
-import axios from "axios";
-import baseUri from "../baseURI/BaseUri";
 import { useAuth } from "../context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
-const fetchSectionData = async (token) => {
-  const { data } = await axios.get(`${baseUri}/students/get-sections`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+import api from "../api/api";
+
+const fetchSectionData = async () => {
+  const { data } = await api.get(`/students/get-sections`);
   return Array.isArray(data) ? data : data.data || [];
 };
 
 export const useSections = () => {
-  const { token, userId } = useAuth();
+  const { token } = useAuth();
   return useQuery({
-    queryKey: ["section", userId],
-    queryFn: () => fetchSectionData(token),
+    queryKey: ["section"],
+    queryFn: fetchSectionData,
     enabled: Boolean(token),
   });
 };
