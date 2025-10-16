@@ -4,6 +4,8 @@ import {
   getStudentsByStatus,
   getStudentsWithAttendance,
   toggleAttendanceRecord,
+  getMissedAttendanceById,
+  getMissedAttendance,
 } from "../models/attendanceModel.js";
 
 export const initializeAttendanceTable = async (req, res, next) => {
@@ -99,5 +101,30 @@ export const fetchAttendance = async (req, res, next) => {
     });
   } catch (err) {
     next(err);
+  }
+};
+
+// Missed counts per student (number of Absent) with optional filters/date range
+
+// 🔹 Get missed attendance for all students
+export const fetchAllMissedAttendance = async (req, res) => {
+  try {
+    const data = await getMissedAttendance();
+    res.json(data);
+  } catch (err) {
+    console.error("Error fetching missed attendance:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+// 🔹 Get missed attendance for one student
+export const fetchMissedAttendanceById = async (req, res) => {
+  const { studentId } = req.params;
+  try {
+    const data = await getMissedAttendanceById(studentId);
+    res.json(data);
+  } catch (err) {
+    console.error("Error fetching student attendance:", err);
+    res.status(500).json({ error: "Server error" });
   }
 };

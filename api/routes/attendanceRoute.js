@@ -1,7 +1,9 @@
 import express from "express";
 import { authenticateUser } from "../middlware/authMiddleware.js";
 import {
+  fetchAllMissedAttendance,
   fetchAttendance,
+  fetchMissedAttendanceById,
   fetchStudentsWithAttendance,
   initializeAttendanceTable,
   markAttendance,
@@ -19,5 +21,8 @@ router.get(
 
 // Dashboard summary endpoint
 router.get("/get-attendance", authenticateUser, fetchAttendance);
+router.get("/missed", fetchAllMissedAttendance);
+router.get("/missed/:studentId", fetchMissedAttendanceById);
+// Missed attendance counts per student
 
 export default router;

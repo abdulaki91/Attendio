@@ -65,9 +65,9 @@ export default function EditStudentModal({ student, onClose }) {
               onChange={(e) => handleChange("batch", e.target.value)}
             />
             <Input
-              placeholder="Year (optional)"
+              placeholder="Section (optional)"
               value={form.year || ""}
-              onChange={(e) => handleChange("year", e.target.value)}
+              onChange={(e) => handleChange("section", e.target.value)}
             />
             <Select
               label="Gender"

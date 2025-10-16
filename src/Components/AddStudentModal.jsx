@@ -10,7 +10,7 @@ export default function AddStudentModal({ label }) {
     id_number: "",
     department: "",
     batch: "",
-    year: "",
+    section: "",
     gender: "",
   });
 
@@ -23,7 +23,13 @@ export default function AddStudentModal({ label }) {
     e.preventDefault();
 
     // Validate required fields
-    if (!form.fullname || !form.department || !form.id_number || !form.gender) {
+    if (
+      !form.fullname ||
+      !form.department ||
+      !form.id_number ||
+      !form.gender ||
+      !form.section
+    ) {
       toast.error(
         "Please fill all required fields (Fullname, ID number, Department, Gender)"
       );
@@ -36,8 +42,8 @@ export default function AddStudentModal({ label }) {
           fullname: "",
           id_number: "",
           department: "",
+          section: "",
           batch: "",
-          year: "",
           gender: "",
         });
         const modal = document.getElementById("add_student_modal");
@@ -82,6 +88,11 @@ export default function AddStudentModal({ label }) {
               value={form.department}
               onChange={(e) => handleChange("department", e.target.value)}
             />
+            <Input
+              placeholder="Enter section (optinal)"
+              value={form.section}
+              onChange={(e) => handleChange("section", e.target.value)}
+            />
             <Select
               className="w-full"
               placeholder="Select gender"
@@ -93,13 +104,6 @@ export default function AddStudentModal({ label }) {
               placeholder="Enter batch (optional)"
               value={form.batch}
               onChange={(e) => handleChange("batch", e.target.value)}
-            />
-            <Input
-              type="number"
-              placeholder="Enter year (optional)"
-              min={2000}
-              value={form.year}
-              onChange={(e) => handleChange("year", e.target.value)}
             />
 
             {/* Buttons row */}

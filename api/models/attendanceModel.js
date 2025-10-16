@@ -234,3 +234,34 @@ export const getAllStudents = async () => {
   const [rows] = await db.execute(sql);
   return rows;
 };
+// / 🔹 Get total missed attendances per student
+export const getMissedAttendance = async () => {
+  const [rows] = await db.execute(`
+    SELECT 
+      s.id AS student_id,
+      s.fullname AS student_name,
+      COUNT(*) AS missed_count
+    FROM attendance a
+    JOIN students s ON s.id = a.student_id
+    WHERE a.status = 'Absent'
+    GROUP BY s.id, s.fullname
+  `);
+  return rows;
+};
+// 🔹 Get missed attendance for a single student
+export const getMissedAttendanceById = async (studentId) => {
+  const [rows] = await db.execute(
+    `
+    SELECT 
+      s.id AS student_id,
+      s.fullname AS student_name,
+      COUNT(*) AS missed_count
+    FROM attendance a
+    JOIN students s ON s.id = a.student_id
+    WHERE a.status = 'Absent' AND s.id = ?
+    GROUP BY s.id, s.fullname
+    `,
+    [studentId]
+  );
+  return rows[0] || { student_id: studentId, student_name: null, missed_count: 0 };
+};

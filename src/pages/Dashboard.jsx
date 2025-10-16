@@ -1,42 +1,40 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Select from "../Components/Select";
 import { CheckCircle, GraduationCap, XCircle } from "lucide-react";
 import Card from "../Components/Card";
-import axios from "axios";
-import baseUri from "../baseURI/BaseUri";
 import { useDepartments } from "../hooks/useDepartments";
-
+import { useFetchStudents } from "../hooks/useFetchStudents";
 export default function Dashboard() {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
-  const [students, setStudents] = useState([]);
   const [attendance, setAttendance] = useState([]);
+  const { data: students = [], isLoading } = useFetchStudents();
+
   const { data: deptOptions = [] } = useDepartments();
-const deptStudents = selectedDepartment
-  ? students.filter((s) => s.department === selectedDepartment)
-  : students;
 
-const presentCount = attendance.filter((s) => s.status === "present").length;
+  const deptStudents = selectedDepartment
+    ? students.filter((s) => s.department === selectedDepartment)
+    : students;
 
-const cardData = [
-  {
-    title: "Total Students",
-    value: deptStudents.length,
-    icon: <GraduationCap size={22} color="blue" />,
-  },
-  {
-    title: "Total Present",
-    value: presentCount,
-    icon: <CheckCircle size={22} color="green" />,
-  },
-  {
-    title: "Total Absent",
-    value: deptStudents.length - presentCount,
-    icon: <XCircle size={22} color="red" />,
-  },
-];
+  const presentCount = attendance.filter((s) => s.status === "present").length;
 
-  
+  const cardData = [
+    {
+      title: "Total Students",
+      value: deptStudents.length,
+      icon: <GraduationCap size={22} color="blue" />,
+    },
+    {
+      title: "Total Present",
+      value: presentCount,
+      icon: <CheckCircle size={22} color="green" />,
+    },
+    {
+      title: "Total Absent",
+      value: deptStudents.length - presentCount,
+      icon: <XCircle size={22} color="red" />,
+    },
+  ];
 
   return (
     <div className="p-4 text-sm md:textarea-md lg:text-lg flex justify-around flex-col">
@@ -64,6 +62,7 @@ const cardData = [
         {cardData.map((card, index) => (
           <Card
             key={index}
+            isLoading={isLoading}
             title={card.title}
             value={card.value}
             icon={card.icon}
@@ -71,11 +70,9 @@ const cardData = [
         ))}
       </div>
 
-      <div className="flex justify-between items-center mt-6">
-      </div>
+      <div className="flex justify-between items-center mt-6"></div>
 
-      <div className="flex justify-between items-center mt-6">
-      </div>
+      <div className="flex justify-between items-center mt-6"></div>
     </div>
   );
 }

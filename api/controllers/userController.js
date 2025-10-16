@@ -84,7 +84,7 @@ export const verifyToken = async (req, res) => {
   }
 };
 
-export const login = async (req, res, next) => {
+export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -122,7 +122,18 @@ export const login = async (req, res, next) => {
       user: { id: user.id, email: user.email },
     });
   } catch (err) {
-    next(err);
+    // Handle specific JWT errors cleanly
+    if (err.name === "TokenExpiredError") {
+      return res
+        .status(401)
+        .json({ message: "Token expired, please log in again" });
+    } else if (err.name === "JsonWebTokenError") {
+      return res.status(401).json({ message: "Invalid token" });
+    } else {
+      // Log non-JWT related errors
+      console.error("Auth Middleware Error:", err.message);
+      return res.status(500).json({ message: "Internal server error" });
+    }
   }
 };
 // get user by id

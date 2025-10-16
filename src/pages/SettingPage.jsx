@@ -2,13 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../hooks/useCurrentUser";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
-import baseUri from "../baseURI/BaseUri";
 import toast from "react-hot-toast";
 import userAvatar from "../assets/images/user.png";
 import { useAuth } from "../context/AuthContext";
-import ThemeSelector from "../Components/ThemeController";
-
+import api from "../api/api";
 export default function SettingPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -39,10 +36,7 @@ export default function SettingPage() {
   // ==============================
   const updateUserMutation = useMutation({
     mutationFn: async (updatedData) => {
-      const { data } = await axios.put(
-        `${baseUri}/users/update-user`,
-        updatedData
-      );
+      const { data } = await api.put(`/users/update-user`, updatedData);
       return data;
     },
     onSuccess: (data) => {
@@ -69,7 +63,7 @@ export default function SettingPage() {
   // ==============================
   const changePasswordMutation = useMutation({
     mutationFn: async (passwordData) => {
-      await axios.put(`${baseUri}/users/change-password`, passwordData);
+      await api.put(`/users/change-password`, passwordData);
     },
     onSuccess: () => {
       toast.success("Password updated successfully");
