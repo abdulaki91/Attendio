@@ -7,7 +7,6 @@ export const createStudentsTable = () => {
       department VARCHAR(100) NOT NULL,
       batch VARCHAR(50),
       section VARCHAR(50),
-      year VARCHAR(50),
       id_number VARCHAR(100) UNIQUE,
       gender ENUM('Male','Female','Other') NOT NULL,
       teacher_id INT,
@@ -45,8 +44,8 @@ export const addStudentQuery = async (studentData) => {
     fullname,
     department,
     batch = null,
-    year = null,
     gender,
+    section,
     teacher_id = null,
     id_number,
   } = studentData;
@@ -69,31 +68,30 @@ export const addStudentQuery = async (studentData) => {
     throw error;
   }
 
-  // Insert student
+  // ✅ Correct column order for INSERT
   const sql = `
-    INSERT INTO students (fullname, department, batch, year, gender, teacher_id, id_number)
+    INSERT INTO students (fullname, department, batch, gender, teacher_id, id_number, section)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
   const values = [
-    fullname,
-    department,
-    batch,
-    year,
-    gender,
-    teacher_id,
-    id_number,
+    fullname, // fullname
+    department, // department
+    batch, // batch
+    gender, // gender
+    teacher_id, // teacher_id
+    id_number, // id_number
+    section, // section
   ];
 
   const [result] = await db.execute(sql, values);
 
-  // Return inserted student with id
   return {
     id: result.insertId,
     fullname,
     department,
     batch,
-    year,
     gender,
+    section,
     teacher_id,
     id_number,
   };
@@ -176,16 +174,16 @@ export const updateStudentQuery = async ({
   fullname,
   department,
   batch = null,
-  year = null,
+  section = null,
   gender,
   id_number,
 }) => {
   const sql = `
     UPDATE students 
-    SET fullname = ?, department = ?, batch = ?, year = ?, gender = ?
+    SET fullname = ?, department = ?, batch = ?, section = ?, gender = ?
     WHERE id_number = ?
   `;
-  const values = [fullname, department, batch, year, gender, id_number];
+  const values = [fullname, department, batch, section, gender, id_number];
   await db.execute(sql, values);
 
   // Return updated student
