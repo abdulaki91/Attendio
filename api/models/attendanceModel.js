@@ -16,7 +16,7 @@ export const createAttendanceTable = async () => {
       UNIQUE KEY unique_attendance_teacher (student_id, attendance_date, teacher_id)
     );
   `;
-  // Try to ensure the unique key is (student_id, attendance_date, teacher_id)
+
   // In case an older index exists, adjust it safely.
   return db.execute(sql).then(async () => {
     try {
@@ -32,6 +32,23 @@ export const createAttendanceTable = async () => {
     }
   });
 };
+// create Session table
+
+export const createSessionTable = async () => {
+  const sql = `CREATE TABLE IF NOT EXISTS sessions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  teacher_id INT NOT NULL,
+  department VARCHAR(100) NOT NULL,
+  batch VARCHAR(50),
+  section VARCHAR(50),
+  session_date DATE NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (teacher_id) REFERENCES users(id) ON DELETE CASCADE,
+  UNIQUE KEY unique_session (teacher_id, department, batch, section, session_date)
+);
+`;
+  return db.execute(sql);
+};
 
 // Toggle attendance record (date-based only)
 export const toggleAttendanceRecord = async ({
@@ -39,37 +56,26 @@ export const toggleAttendanceRecord = async ({
   attendance_date,
   teacher_id,
 }) => {
-  // ✅ Use attendance_date directly — it's already "YYYY-MM-DD"
-  const formattedDate = attendance_date;
-
-  // Check if attendance already exists
   const [rows] = await db.execute(
-    `SELECT * FROM attendance WHERE student_id = ? AND attendance_date = ? AND teacher_id = ?`,
-    [student_id, formattedDate, teacher_id]
+    `SELECT * FROM attendance WHERE student_id=? AND attendance_date=? AND teacher_id=?`,
+    [student_id, attendance_date, teacher_id]
   );
 
-  if (rows.length > 0) {
-    // Toggle status
-    const currentStatus = rows[0].status;
-    let newStatus = currentStatus === "Present" ? "Absent" : "Present";
-
-    await db.execute(`UPDATE attendance SET status = ? WHERE id = ?`, [
-      newStatus,
-      rows[0].id,
-    ]);
-
-    return `Attendance updated: ${newStatus}`;
-  } else {
-    // Insert new record
-    await db.execute(
-      `INSERT INTO attendance (student_id, teacher_id, status, attendance_date) 
-       VALUES (?, ?, 'Present', ?)`,
-
-      [student_id, teacher_id, formattedDate]
+  if (rows.length === 0) {
+    throw new Error(
+      "Attendance record not found — please create a session first."
     );
-
-    return "Attendance recorded: Present";
   }
+
+  const currentStatus = rows[0].status;
+  const newStatus = currentStatus === "Present" ? "Absent" : "Present";
+
+  await db.execute(`UPDATE attendance SET status=? WHERE id=?`, [
+    newStatus,
+    rows[0].id,
+  ]);
+
+  return `Attendance updated: ${newStatus}`;
 };
 
 // Fetch attendance by exact date
@@ -93,7 +99,6 @@ export const fetchAttendanceByStudentId = async (studentId) => {
 // Fetch students with their attendance for the logged-in teacher
 export const getStudentsWithAttendance = async (teacher_id, filters = {}) => {
   const { date, department, batch, section } = filters;
-  console.log("section", section);
 
   if (!teacher_id) {
     throw new Error("teacher_id is required");
@@ -106,7 +111,6 @@ export const getStudentsWithAttendance = async (teacher_id, filters = {}) => {
     s.fullname,
     s.department,
     s.batch,
-    s.year,
     s.section,
     s.teacher_id ,
     s.id_number,
@@ -164,7 +168,6 @@ DATE_FORMAT(a.attendance_date, '%Y-%m-%d') AS attendance_date
         batch: row.batch,
         section: row.section,
         teacher_id: row.teacher_id,
-        year: row.year,
         id_number: row.id_number,
         gender: row.gender,
         attendance: [],
@@ -263,5 +266,7 @@ export const getMissedAttendanceById = async (studentId) => {
     `,
     [studentId]
   );
-  return rows[0] || { student_id: studentId, student_name: null, missed_count: 0 };
+  return (
+    rows[0] || { student_id: studentId, student_name: null, missed_count: 0 }
+  );
 };
