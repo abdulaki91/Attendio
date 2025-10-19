@@ -9,9 +9,11 @@ export const createAttendanceTable = async () => {
       teacher_id INT,  -- Who recorded the attendance
       status ENUM('Present', 'Absent', 'Late', 'Excused') NOT NULL DEFAULT 'Absent',
       attendance_date DATE NOT NULL,
+      session_id INT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
       FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+      FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE,
       FOREIGN KEY (teacher_id) REFERENCES users(id) ON DELETE SET NULL,
       UNIQUE KEY unique_attendance_teacher (student_id, attendance_date, teacher_id)
     );
@@ -34,7 +36,7 @@ export const createAttendanceTable = async () => {
 };
 // create Session table
 
-export const createSessionTable = async () => {
+export const createSessionTable = () => {
   const sql = `CREATE TABLE IF NOT EXISTS sessions (
   id INT AUTO_INCREMENT PRIMARY KEY,
   teacher_id INT NOT NULL,

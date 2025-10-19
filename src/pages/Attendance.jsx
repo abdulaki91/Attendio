@@ -9,12 +9,16 @@ import { useAttendanceStudents } from "../hooks/useAttendanceStudents";
 import { useDepartments } from "../hooks/useDepartments";
 import { useBatches } from "../hooks/useBatch";
 import { useSections } from "../hooks/useSection"; // ✅ new custom hook for sections
+import useCreateSession from "../hooks/useCreateSession";
+import SessionModal from "../Components/SessionModal";
 const Attendance = () => {
   // ======= STATE =======
   const [year, setYear] = useState(new Date().getFullYear());
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedBatch, setSelectedBatch] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [selectedSection, setSelectedSection] = useState("");
   const [selectedWeekdays, setSelectedWeekdays] = useState(() => {
     try {
@@ -39,6 +43,7 @@ const Attendance = () => {
   const { data: departments = [] } = useDepartments();
   const { data: batches = [] } = useBatches();
   const { data: sections = [] } = useSections();
+  const createSession = useCreateSession(); // if you have one
 
   const tableRef = useRef(null);
   const formattedDate = new Date(year, month - 1).toLocaleString("default", {
@@ -98,6 +103,11 @@ const Attendance = () => {
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
     );
   };
+  const handleStartSession = (data) => {
+    createSession.mutate(data); // or call axios.post("/attendance/create-session", data)
+  };
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
 
   useEffect(() => {
     localStorage.setItem("weekdays", JSON.stringify(selectedWeekdays));
@@ -133,6 +143,29 @@ const Attendance = () => {
             value={selectedSection}
             onChange={(e) => setSelectedSection(e.target.value)}
           />
+          <Button
+            className="btn btn-primary hover:text-accent "
+            onClick={handleOpenModal}
+          >
+            ➕ Start Session
+          </Button>
+          {isModalOpen && (
+            <SessionModal
+              isOpen={isModalOpen}
+              onClose={handleCloseModal}
+              onSubmit={handleStartSession}
+              sections={sections}
+              batches={batches}
+              departments={departments}
+              // pass the selected values and setters
+              selectedDepartment={selectedDepartment}
+              selectedBatch={selectedBatch}
+              selectedSection={selectedSection}
+              setSelectedDepartment={setSelectedDepartment}
+              setSelectedBatch={setSelectedBatch}
+              setSelectedSection={setSelectedSection}
+            />
+          )}
         </div>
 
         {/* WEEKDAY SELECTION */}

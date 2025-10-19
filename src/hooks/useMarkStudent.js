@@ -13,9 +13,7 @@ export default function useMarkStudent() {
       });
       return response.data;
     },
-    onError: (error) => {
-      toast.error("Failed to mark student attendance: " + error.message);
-    },
+
     onSuccess: (data) => {
       // Invalidate students query to refetch and update UI
       queryClient.invalidateQueries({ queryKey: ["attendance_students"] });

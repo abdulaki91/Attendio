@@ -25,7 +25,7 @@ router.get(
 router.get("/get-attendance", authenticateUser, fetchAttendance);
 router.get("/missed", fetchAllMissedAttendance);
 router.get("/missed/:studentId", fetchMissedAttendanceById);
-router.post("/create-session-table", authenticateUser, createSessionTable);
+router.get("/create-session-table", createSessionTable);
 router.post("/create-session", authenticateUser, createSession);
 // Missed attendance counts per student
 

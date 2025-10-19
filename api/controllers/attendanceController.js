@@ -21,6 +21,7 @@ export const initializeAttendanceTable = async (req, res, next) => {
 export const createSession = async (req, res, next) => {
   try {
     const { department, batch, section, session_date } = req.body;
+
     const teacher_id = req.user.id;
 
     //  Check if session already exists
@@ -30,7 +31,9 @@ export const createSession = async (req, res, next) => {
     );
 
     if (existing.length > 0) {
-      return res.status(400).json({ message: "Session already created." });
+      return res
+        .status(400)
+        .json({ message: "Session already created. Please mark attendance." });
     }
 
     //  Insert session
@@ -68,28 +71,29 @@ export const createSession = async (req, res, next) => {
   }
 };
 
-export const markAttendance = async (req, res, next) => {
+export const markAttendance = async (req, res) => {
   try {
     const { student_id, attendance_date } = req.body;
     const teacher_id = req.user?.id;
 
+    console.log(attendance_date);
     // 🔸 Step 1: Validate input
     if (!teacher_id || !attendance_date || !student_id) {
       return res.status(400).json({ message: "Missing required fields." });
     }
 
-    // // 🔸 Step 2: Check if session exists for this teacher & date
-    // const [sessionRows] = await db.execute(
-    //   `SELECT * FROM sessions WHERE teacher_id=? AND session_date=?`,
-    //   [teacher_id, attendance_date]
-    // );
+    // 🔸 Step 2: Check if session exists for this teacher & date
+    const [sessionRows] = await db.execute(
+      `SELECT * FROM sessions WHERE teacher_id=? AND session_date=?`,
+      [teacher_id, attendance_date]
+    );
 
-    // if (sessionRows.length === 0) {
-    //   //  No session found — stop here
-    //   return res
-    //     .status(400)
-    //     .json({ message: "Cannot mark attendance. Session not created yet." });
-    // }
+    if (sessionRows.length === 0) {
+      //  No session found — stop here
+      return res.status(400).json({
+        message: "Cannot mark attendance. Please start session first.",
+      });
+    }
 
     // 🔸 Step 3: Ensure the student has an attendance record for this session
     const [rows] = await db.execute(
@@ -116,7 +120,6 @@ export const markAttendance = async (req, res, next) => {
     return res.status(200).json({ message });
   } catch (err) {
     console.error("Error marking attendance:", err);
-    next(err);
   }
 };
 
