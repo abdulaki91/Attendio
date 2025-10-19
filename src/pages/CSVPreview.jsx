@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import axios from "axios";
-import baseUri from "../baseURI/BaseUri";
-import { useAuth } from "../context/AuthContext";
-
+import api from "../api/api";
 export default function CSVPreview({
   fetchedStudents,
   onImportSuccess,
@@ -12,18 +9,59 @@ export default function CSVPreview({
 }) {
   const [validatedData, setValidatedData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const { token } = useAuth();
+
   useEffect(() => {
     const seenIds = new Set();
     const existingIds = new Set(fetchedStudents.map((s) => s.id_number));
 
-    const validated = csvData.map((row) => {
-      const errors = [];
+    // Normalize and simplify key
+    // ✅ Keep underscores and digits
+    const normalizeKey = (key) =>
+      key
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "_") // convert spaces to underscores
+        .replace(/[^a-z0-9_]/g, ""); // keep underscores and numbers
 
+    // Map CSV keys flexibly
+    const validated = csvData.map((rawRow) => {
+      // Convert all keys to a simple normalized form
+      const normalized = Object.fromEntries(
+        Object.entries(rawRow).map(([k, v]) => [normalizeKey(k), v?.trim()])
+      );
+
+      // Helper to find the most likely key for each field
+      const findKey = (targets) => {
+        for (const t of targets) {
+          const match = Object.keys(normalized).find((k) => k.includes(t));
+          if (match) return normalized[match];
+        }
+        return "";
+      };
+
+      // Detect column data using partial matches
+      const row = {
+        fullname: findKey(["fullname", "name", "fname", "Full Name"]),
+        id_number: findKey([
+          "id_number",
+          "idno",
+          "id",
+          "ID Number",
+          "Id Number",
+        ]),
+        department: findKey(["department", "departme", "dept", "Department"]),
+        batch: findKey(["batch", "year"]),
+        section: findKey(["section", "sect", "Section", "class", "Class"]),
+        gender: findKey(["gender", "sex", "Gender"]),
+      };
+
+      // Validation
+      const errors = [];
       if (!row.fullname) errors.push("Missing fullname");
       if (!row.id_number) errors.push("Missing ID");
       if (!row.department) errors.push("Missing department");
       if (!row.gender) errors.push("Missing gender");
+      if (!row.section) errors.push("Missing section");
 
       if (row.id_number) {
         if (seenIds.has(row.id_number)) errors.push("Duplicate ID in CSV");
@@ -46,13 +84,7 @@ export default function CSVPreview({
 
     setLoading(true);
     try {
-      const res = await axios.post(
-        `${baseUri}/students/batch-import`,
-        validStudents,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const res = await api.post(`/students/batch-import`, validStudents, {});
 
       toast.success(
         `${res.data.added} students added. ${res.data.skipped.length} skipped.`
@@ -80,12 +112,12 @@ export default function CSVPreview({
           <thead>
             <tr className="bg-base-200">
               <th>#</th>
-              <th>Fullname</th>
+              <th>Full Name</th>
               <th>ID Number</th>
               <th>Department</th>
               <th>Batch</th>
-              <th>Year</th>
               <th>Gender</th>
+              <th>Section</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -114,11 +146,12 @@ export default function CSVPreview({
                 <td className="border border-accent/10 px-2 py-1">
                   {row.batch || "-"}
                 </td>
-                <td className="border border-accent/10 px-2 py-1">
-                  {row.year || "-"}
-                </td>
+
                 <td className="border border-accent/10 text-center px-2 py-1">
                   {row.gender || "-"}
+                </td>
+                <td className="border border-accent/10 px-2 py-1">
+                  {row.section || "-"}
                 </td>
                 <td className="border border-accent/10 text-center px-2 py-1">
                   {row.errors.length > 0 ? row.errors.join(", ") : "Valid"}

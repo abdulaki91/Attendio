@@ -20,6 +20,7 @@ export default function ThemeSelector() {
     <div className="flex items-center gap-2">
       <Select
         options={themes}
+        allowOther={false}
         label="Theme"
         value={theme}
         onChange={(e) => setTheme(e.target.value)}

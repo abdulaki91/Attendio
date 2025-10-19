@@ -35,7 +35,8 @@ export default function Student() {
         .includes(searchQuery.toLowerCase()) ||
       (student.department || "")
         .toLowerCase()
-        .includes(searchQuery.toLowerCase())
+        .includes(searchQuery.toLowerCase()) ||
+      (student.section || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Edit student

@@ -3,6 +3,9 @@ import Input from "../Components/Input";
 import Select from "../Components/Select";
 import toast from "react-hot-toast";
 import { useAddStudent } from "../hooks/useAddStudent";
+import { useDepartments } from "../hooks/useDepartments";
+import { useBatches } from "../hooks/useBatch";
+import { useSections } from "../hooks/useSection";
 
 export default function AddStudentModal({ label }) {
   const [form, setForm] = useState({
@@ -13,6 +16,10 @@ export default function AddStudentModal({ label }) {
     section: "",
     gender: "",
   });
+
+  const { data: departments = [] } = useDepartments();
+  const { data: batches = [] } = useBatches();
+  const { data: sections = [] } = useSections();
 
   const { mutate: addStudent } = useAddStudent();
   const handleChange = (field, value) => {
@@ -83,25 +90,31 @@ export default function AddStudentModal({ label }) {
               value={form.id_number}
               onChange={(e) => handleChange("id_number", e.target.value)}
             />
-            <Input
+            <Select
+              className="w-full"
               placeholder="Enter department"
+              options={departments}
               value={form.department}
               onChange={(e) => handleChange("department", e.target.value)}
             />
-            <Input
-              placeholder="Enter section (optinal)"
+            <Select
+              className="w-full"
+              placeholder="Select section"
+              options={sections}
               value={form.section}
               onChange={(e) => handleChange("section", e.target.value)}
             />
             <Select
               className="w-full"
               placeholder="Select gender"
-              options={["Male", "Female", "Other"]}
+              options={["Male", "Female"]}
               value={form.gender}
               onChange={(e) => handleChange("gender", e.target.value)}
             />
-            <Input
-              placeholder="Enter batch (optional)"
+            <Select
+              className="w-full"
+              options={batches}
+              placeholder="Select batch"
               value={form.batch}
               onChange={(e) => handleChange("batch", e.target.value)}
             />

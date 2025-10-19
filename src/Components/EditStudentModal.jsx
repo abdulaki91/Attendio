@@ -3,10 +3,13 @@ import Input from "../Components/Input";
 import Select from "../Components/Select";
 import { useEditStudent } from "../hooks/UseEditStudent";
 import { useBatches } from "../hooks/useBatch";
-
+import { useSections } from "../hooks/useSection";
+import { useDepartments } from "../hooks/useDepartments";
 export default function EditStudentModal({ student, onClose }) {
   const [form, setForm] = useState({});
   const editStudent = useEditStudent();
+  const { data: sections = [] } = useSections();
+  const { data: departments = [] } = useDepartments();
   const { data: batch = [] } = useBatches();
   useEffect(() => {
     if (student) setForm(student);
@@ -18,6 +21,7 @@ export default function EditStudentModal({ student, onClose }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     editStudent.mutate(form, {
       onSuccess: () => onClose(),
     });
@@ -53,20 +57,23 @@ export default function EditStudentModal({ student, onClose }) {
               value={form.id_number || ""}
               onChange={(e) => handleChange("id_number", e.target.value)}
             />
-            <Input
-              placeholder="Department"
+            <Select
+              label="Department"
               value={form.department || ""}
+              options={departments}
               onChange={(e) => handleChange("department", e.target.value)}
             />
+
             <Select
               label="Batch"
               value={form.batch || ""}
               options={batch}
               onChange={(e) => handleChange("batch", e.target.value)}
             />
-            <Input
-              placeholder="Section (optional)"
-              value={form.year || ""}
+            <Select
+              label="Section"
+              options={sections}
+              value={form.section || ""}
               onChange={(e) => handleChange("section", e.target.value)}
             />
             <Select

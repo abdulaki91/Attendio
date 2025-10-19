@@ -13,7 +13,6 @@ const fetchStudents = async () => {
     department: s.department,
     batch: s.batch,
     section: s.section,
-    year: s.year,
     id_number: s.id_number,
     gender: s.gender,
   }));

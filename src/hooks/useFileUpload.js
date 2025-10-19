@@ -11,45 +11,49 @@ export function useFileUpload() {
     if (!file) return;
 
     const ext = file.name.split(".").pop().toLowerCase();
+
+    // ✅ Handle CSV file
     if (ext === "csv") {
       Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
         complete: (results) => {
-          const parsedData = results.data.map((row) => ({
-            fullname: row.fullname?.trim(),
-            id_number: row.id_number?.trim(),
-            department: row.department?.trim(),
-            batch: row.batch?.trim(),
-            year: row.year?.trim(),
-            gender: row.gender?.trim(),
-          }));
-          setCsvData(parsedData);
+          // Keep raw data — CSVPreview will handle normalization
+          setCsvData(results.data);
+          console.log("📄 Parsed CSV Data:", results.data);
         },
-        error: () => toast.error("Failed to parse CSV"),
+        error: (err) => {
+          console.error("CSV Parse Error:", err);
+          toast.error("Failed to parse CSV file");
+        },
       });
-    } else if (ext === "xlsx" || ext === "xls") {
+
+      return;
+    }
+
+    // ✅ Handle Excel file (.xlsx or .xls)
+    if (ext === "xlsx" || ext === "xls") {
       const reader = new FileReader();
       reader.onload = (evt) => {
-        const data = new Uint8Array(evt.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-        const firstSheet = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheet];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
-        const parsedData = jsonData.map((row) => ({
-          fullname: row.fullname?.toString().trim(),
-          id_number: row.id_number?.toString().trim(),
-          department: row.department?.toString().trim(),
-          batch: row.batch?.toString().trim(),
-          year: row.year?.toString().trim(),
-          gender: row.gender?.toString().trim(),
-        }));
-        setCsvData(parsedData);
+        try {
+          const data = new Uint8Array(evt.target.result);
+          const workbook = XLSX.read(data, { type: "array" });
+          const firstSheet = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheet];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+          setCsvData(jsonData);
+          console.log("📘 Parsed Excel Data:", jsonData);
+        } catch (err) {
+          console.error("Excel Parse Error:", err);
+          toast.error("Failed to parse Excel file");
+        }
       };
       reader.readAsArrayBuffer(file);
-    } else {
-      toast.error("Unsupported file type. Use CSV or Excel.");
+      return;
     }
+
+    //  Unsupported file type
+    toast.error("Unsupported file type. Please upload a CSV or Excel file.");
   };
 
   return { csvData, setCsvData, handleFileUpload };
