@@ -37,12 +37,14 @@ export const getStudents = async (req, res) => {
 
 export const addStudent = async (req, res) => {
   try {
-    const { fullname, department, batch, year, gender, id_number } = req.body;
+    const { fullname, department, batch, gender, id_number, section } =
+      req.body;
 
     // Validate required fields
-    if (!fullname || !department || !gender || !id_number) {
+    if (!fullname || !department || !gender || !id_number || !section) {
       return res.status(400).json({
-        message: "Fullname, department, gender, and ID number are required.",
+        message:
+          "Fullname, department, gender, ID number, and section are required.",
       });
     }
 
@@ -65,8 +67,8 @@ export const addStudent = async (req, res) => {
       fullname,
       department,
       batch: batch || null,
-      year: year || null,
       gender,
+      section,
       id_number,
       teacher_id,
     };
@@ -101,41 +103,53 @@ export const batchImportStudents = async (req, res, next) => {
     const addedStudents = [];
     const skippedStudents = [];
 
-    for (const s of students) {
+    // ✅ Loop through each student record
+    for (const student of students) {
+      // 🔹 Normalize all keys to lowercase
+      const normalized = {};
+      for (const key in student) {
+        if (Object.hasOwn(student, key)) {
+          normalized[key.toLowerCase()] = student[key];
+        }
+      }
+
       const {
         fullname,
         id_number,
         department,
         batch = null,
-        year = null,
         gender,
-      } = s;
+        section,
+      } = normalized;
 
-      // Validate required fields
-      if (!fullname || !id_number || !department || !gender) {
-        skippedStudents.push({ ...s, reason: "Missing required field" });
+      // ✅ Validate required fields
+      if (!fullname || !id_number || !department || !gender || !section) {
+        skippedStudents.push({
+          ...normalized,
+          reason: "Missing required field",
+        });
         continue;
       }
 
-      // Check if student already exists
+      // ✅ Check if student already exists
       const existing = await findStudentByIdNumber(id_number);
       if (existing) {
-        skippedStudents.push({ ...s, reason: "Duplicate ID" });
+        skippedStudents.push({ ...normalized, reason: "Duplicate ID" });
         continue;
       }
 
-      // Add student with teacher_id
+      // ✅ Add student with teacher_id
       await addStudentQuery({
         fullname,
         id_number,
         department,
         batch,
-        year,
+        section,
         gender,
         teacher_id, // ✅ attach teacher
       });
 
-      addedStudents.push(s);
+      addedStudents.push(normalized);
     }
 
     res.status(201).json({
@@ -191,12 +205,13 @@ export const fetchStudentsWithAttendance = async (req, res) => {
 export const editStudent = async (req, res) => {
   try {
     const { id } = req.params;
-    const { fullname, department, batch, year, gender, id_number } = req.body;
+    const { fullname, department, batch, gender, id_number, section } =
+      req.body;
 
     if (!fullname || !department || !id) {
       return res
         .status(400)
-        .json({ message: "Fullname, department, and are required." });
+        .json({ message: "Fullname, department, and section are required." });
     }
 
     const student = await findStudentById(id);
@@ -208,7 +223,7 @@ export const editStudent = async (req, res) => {
       fullname,
       department,
       batch,
-      year,
+      section,
       gender,
       id_number,
     });
