@@ -12,6 +12,7 @@ import db from "./config/db.config.js";
 import userRoutes from "./routes/userRoute.js";
 import studentRoutes from "./routes/studentRoute.js";
 import attendanceRoutes from "./routes/attendanceRoute.js";
+import sessionRoute from "./routes/sessionRoute.js";
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use(express.json());
 app.use("/api/users", userRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/attendance", attendanceRoutes);
+app.use("/api/session", sessionRoute);
 
 // --- Test MySQL connection on startup ---
 (async () => {
@@ -49,5 +51,5 @@ app.get("/ping", (req, res) => {
 // Passenger ignores the port, but this works locally
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
-  console.log(`✅ Server running on PORT: ${port}`);
+  console.log(` Server running on PORT: ${port}`);
 });

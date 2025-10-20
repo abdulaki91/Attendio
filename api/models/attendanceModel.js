@@ -256,3 +256,39 @@ export const getMissedAttendanceById = async (studentId) => {
     rows[0] || { student_id: studentId, student_name: null, missed_count: 0 }
   );
 };
+export const insertDefaultAttendance = async (
+  students,
+  teacher_id,
+  session_date,
+  session_id
+) => {
+  if (!students || students.length === 0) return;
+
+  const values = students.map((s) => [
+    s.id,
+    teacher_id,
+    session_id,
+    session_date,
+    "Absent",
+  ]);
+
+  const sql = `
+    INSERT INTO attendance (student_id, teacher_id, session_id, attendance_date, status)
+    VALUES ?
+  `;
+
+  await db.query(sql, [values]);
+};
+
+// 🔹 Check if attendance record exists for a student
+export const findAttendanceRecord = async (
+  student_id,
+  teacher_id,
+  attendance_date
+) => {
+  const [rows] = await db.execute(
+    `SELECT * FROM attendance WHERE student_id=? AND teacher_id=? AND attendance_date=?`,
+    [student_id, teacher_id, attendance_date]
+  );
+  return rows;
+};

@@ -1,4 +1,4 @@
-import db from "../config/db.js";
+import db from "../config/db.config.js";
 export const createSessionTable = () => {
   const sql = `CREATE TABLE IF NOT EXISTS sessions (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -13,4 +13,40 @@ export const createSessionTable = () => {
 );
 `;
   return db.execute(sql);
+};
+
+export const findExistingSession = async (
+  teacher_id,
+  department,
+  batch,
+  section,
+  session_date
+) => {
+  const [rows] = await db.execute(
+    `SELECT * FROM sessions WHERE teacher_id=? AND department=? AND batch=? AND section=? AND session_date=?`,
+    [teacher_id, department, batch, section, session_date]
+  );
+  return rows;
+};
+
+export const insertSession = async (
+  teacher_id,
+  department,
+  batch,
+  section,
+  session_date
+) => {
+  const [result] = await db.execute(
+    `INSERT INTO sessions (teacher_id, department, batch, section, session_date)
+     VALUES (?, ?, ?, ?, ?)`,
+    [teacher_id, department, batch, section, session_date]
+  );
+  return result.insertId;
+};
+export const findSessionByTeacherAndDate = async (teacher_id, session_date) => {
+  const [rows] = await db.execute(
+    `SELECT * FROM sessions WHERE teacher_id=? AND session_date=?`,
+    [teacher_id, session_date]
+  );
+  return rows;
 };

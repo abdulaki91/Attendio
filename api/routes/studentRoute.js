@@ -13,7 +13,11 @@ import express from "express";
 import { authenticateUser } from "../middlware/authMiddleware.js";
 const router = express.Router();
 
-router.get("/initialize/create-student-table", initializeStudentTable);
+router.get(
+  "/initialize/create-student-table",
+  authenticateUser,
+  initializeStudentTable
+);
 router.get("/get-students", authenticateUser, getStudents);
 router.post("/add-student", authenticateUser, addStudent);
 router.post("/batch-import", authenticateUser, batchImportStudents);

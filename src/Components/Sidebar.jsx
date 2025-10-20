@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { X, LayoutDashboard, User, Settings } from "lucide-react";
+import {
+  X,
+  LayoutDashboard,
+  User,
+  Settings,
+  CalendarCheck,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 export default function Sidebar({ isOpen, setIsOpen }) {
@@ -12,6 +18,11 @@ export default function Sidebar({ isOpen, setIsOpen }) {
       path: "/dashboard",
     },
     { name: "Student", icon: <User size={20} />, path: "/student" },
+    {
+      name: "Session Attendance",
+      icon: <CalendarCheck size={20} />,
+      path: "/session-attendance",
+    },
     { name: "Attendance", icon: <User size={20} />, path: "/attendance" },
     { name: "Settings", icon: <Settings size={20} />, path: "/settings" },
   ];

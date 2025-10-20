@@ -6,8 +6,10 @@ import {
   toggleAttendanceRecord,
   getMissedAttendanceById,
   getMissedAttendance,
+  findAttendanceRecord,
+  insertDefaultAttendance,
 } from "../models/attendanceModel.js";
-import db from "../config/db.config.js";
+import { findSessionByTeacherAndDate } from "../models/sessionModel.js";
 
 export const initializeAttendanceTable = async (req, res, next) => {
   try {
@@ -18,7 +20,7 @@ export const initializeAttendanceTable = async (req, res, next) => {
   }
 };
 
-export const markAttendance = async (req, res) => {
+export const markAttendance = async (req, res, next) => {
   try {
     const { student_id, attendance_date } = req.body;
     const teacher_id = req.user?.id;
@@ -28,44 +30,46 @@ export const markAttendance = async (req, res) => {
       return res.status(400).json({ message: "Missing required fields." });
     }
 
-    // 🔸 Step 2: Check if session exists for this teacher & date
-    const [sessionRows] = await db.execute(
-      `SELECT * FROM sessions WHERE teacher_id=? AND session_date=?`,
-      [teacher_id, attendance_date]
+    // 🔸 Step 2: Check if session exists
+    const sessionRows = await findSessionByTeacherAndDate(
+      teacher_id,
+      attendance_date
     );
+    const session_id = sessionRows.length > 0 ? sessionRows[0].id : null;
 
     if (sessionRows.length === 0) {
-      //  No session found — stop here
       return res.status(400).json({
         message: "Cannot mark attendance. Please start session first.",
       });
     }
 
-    // 🔸 Step 3: Ensure the student has an attendance record for this session
-    const [rows] = await db.execute(
-      `SELECT * FROM attendance WHERE student_id=? AND attendance_date=? AND teacher_id=?`,
-      [student_id, attendance_date, teacher_id]
+    // 🔸 Step 3: Ensure record exists or create default
+    const attendanceRows = await findAttendanceRecord(
+      student_id,
+      teacher_id,
+      attendance_date
     );
 
-    // If no record yet, insert default status (Absent)
-    if (rows.length === 0) {
-      await db.execute(
-        `INSERT INTO attendance (student_id, teacher_id, status, attendance_date)
-         VALUES (?, ?, 'Absent', ?)`,
-        [student_id, teacher_id, attendance_date]
+    if (attendanceRows.length === 0) {
+      await insertDefaultAttendance(
+        student_id,
+        teacher_id,
+        attendance_date,
+        session_id
       );
     }
 
-    // 🔸 Step 4: Toggle attendance (Present <-> Absent)
+    // 🔸 Step 4: Toggle attendance
     const message = await toggleAttendanceRecord({
       student_id,
-      attendance_date,
       teacher_id,
+      attendance_date,
     });
 
     return res.status(200).json({ message });
   } catch (err) {
     console.error("Error marking attendance:", err);
+    next(err);
   }
 };
 

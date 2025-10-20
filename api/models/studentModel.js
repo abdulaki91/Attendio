@@ -204,3 +204,15 @@ export const getSectionsByTeacher = async (teacher_id) => {
   const [rows] = await db.execute(sql, [teacher_id]);
   return rows.map((r) => r.section).filter(Boolean);
 };
+
+export const findStudentsByDepartmentBatchSection = async (
+  department,
+  batch,
+  section
+) => {
+  const [rows] = await db.execute(
+    `SELECT id FROM students WHERE department=? AND batch=? AND section=?`,
+    [department, batch, section]
+  );
+  return rows;
+};

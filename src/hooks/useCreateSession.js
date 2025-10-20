@@ -7,10 +7,7 @@ export default function useCreateSession() {
 
   return useMutation({
     mutationFn: async (sessionData) => {
-      const { data } = await api.post(
-        "/attendance/create-session",
-        sessionData
-      );
+      const { data } = await api.post("/session/create-session", sessionData);
       return data;
     },
     onSuccess: () => {

@@ -11,6 +11,7 @@ import Attendance from "./pages/Attendance";
 import Profile from "./pages/Profile";
 import SignupPage from "./pages/SignUpPage";
 import CheckEmailPage from "./pages/CheckEmailPage";
+import SessionAttendance from "./pages/SessionAttendance";
 function App() {
   return (
     <>
@@ -22,6 +23,7 @@ function App() {
             <Route path="/student" element={<Student />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/attendance" element={<Attendance />} />
+            <Route path="/session-attendance" element={<SessionAttendance />} />
             <Route path="/profile" element={<Profile />} />
           </Route>
           <Route path="/login" element={<LoginPage />} />
