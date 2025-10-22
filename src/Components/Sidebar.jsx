@@ -5,6 +5,7 @@ import {
   User,
   Settings,
   CalendarCheck,
+  UserCheck,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
@@ -23,7 +24,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
       icon: <CalendarCheck size={20} />,
       path: "/session-attendance",
     },
-    { name: "Attendance", icon: <User size={20} />, path: "/attendance" },
+    { name: "Attendance", icon: <UserCheck size={20} />, path: "/attendance" },
     { name: "Settings", icon: <Settings size={20} />, path: "/settings" },
   ];
 

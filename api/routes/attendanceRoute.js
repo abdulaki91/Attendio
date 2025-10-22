@@ -9,7 +9,11 @@ import {
   markAttendance,
 } from "../controllers/attendanceController.js";
 const router = express.Router();
-router.get("/initialize/create-attendance-table", initializeAttendanceTable);
+router.get(
+  "/initialize/create-attendance-table",
+  authenticateUser,
+  initializeAttendanceTable
+);
 router.post("/create-attendance", authenticateUser, markAttendance); // POST /attendance → Create attendance record
 
 // GET /attendance?date=YYYY-MM-DD
@@ -21,8 +25,8 @@ router.get(
 
 // Dashboard summary endpoint
 router.get("/get-attendance", authenticateUser, fetchAttendance);
-router.get("/missed", fetchAllMissedAttendance);
-router.get("/missed/:studentId", fetchMissedAttendanceById);
+router.get("/missed", authenticateUser, fetchAllMissedAttendance);
+router.get("/missed/:studentId", authenticateUser, fetchMissedAttendanceById);
 
 // Missed attendance counts per student
 
