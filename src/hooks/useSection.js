@@ -8,9 +8,9 @@ const fetchSectionData = async () => {
 };
 
 export const useSections = () => {
-  const { token } = useAuth();
+  const { token, userId } = useAuth();
   return useQuery({
-    queryKey: ["section"],
+    queryKey: ["section", userId],
     queryFn: fetchSectionData,
     enabled: Boolean(token),
   });

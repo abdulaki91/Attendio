@@ -1,5 +1,9 @@
 import { insertDefaultAttendance } from "../models/attendanceModel.js";
-import { findExistingSession, insertSession } from "../models/sessionModel.js";
+import {
+  findExistingSession,
+  getSessionsWithAttendance,
+  insertSession,
+} from "../models/sessionModel.js";
 import { findStudentsByDepartmentBatchSection } from "../models/studentModel.js";
 
 export const createSession = async (req, res, next) => {
@@ -49,6 +53,15 @@ export const createSession = async (req, res, next) => {
       message: "Session created and all students marked Absent.",
       session_id,
     });
+  } catch (err) {
+    next(err);
+  }
+};
+export const getSessionsWithAttendanceByTeacher = async (req, res, next) => {
+  try {
+    const teacher_id = req.user.id;
+    const sessions = await getSessionsWithAttendance(teacher_id);
+    res.json(sessions);
   } catch (err) {
     next(err);
   }

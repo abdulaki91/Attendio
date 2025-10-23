@@ -12,6 +12,7 @@ export default function useCreateSession() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["sessions"]);
+
       toast.success("Session created successfully!");
     },
   });

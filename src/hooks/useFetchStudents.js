@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import api from "../api/api";
 
 const fetchStudents = async () => {
-  const { data } = await api.get(`/students/get-students`, {});
+  const { data } = await api.get(`/students/get-students`);
 
   // Data already in the desired shape from backend
   return data.map((s) => ({
@@ -19,10 +19,10 @@ const fetchStudents = async () => {
 };
 
 export const useFetchStudents = () => {
-  const { token, userId } = useAuth();
+  const { userId } = useAuth();
   return useQuery({
     queryKey: ["students", userId],
-    queryFn: () => fetchStudents(token),
+    queryFn: () => fetchStudents(),
     // staleTime: 1000 * 60 * 5,
   });
 };

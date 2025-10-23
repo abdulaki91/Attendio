@@ -2,7 +2,18 @@
 import React, { useState, useEffect } from "react";
 import Select from "./Select";
 
-const themes = ["light", "dark", "dracula", "coffee", "nord"];
+const themes = [
+  "light",
+  "dark",
+  "dracula",
+  "emerald",
+  "synthwave",
+  "business",
+  "luxury",
+  "retro",
+  "aqua",
+  "halloween",
+];
 
 export default function ThemeSelector() {
   // Load saved theme from localStorage or default to 'dracula'

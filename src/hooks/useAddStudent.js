@@ -12,6 +12,9 @@ export const useAddStudent = () => {
     onSuccess: () => {
       // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: ["students", userId] });
+      queryClient.invalidateQueries({ queryKey: ["section", userId] });
+      queryClient.invalidateQueries({ queryKey: ["departments", userId] });
+      queryClient.invalidateQueries({ queryKey: ["batches", userId] });
       toast.success("Student added successfully!");
     },
     onError: (error) => {
