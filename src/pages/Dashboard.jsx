@@ -2,21 +2,26 @@ import { useState } from "react";
 import Select from "../Components/Select";
 import { CheckCircle, GraduationCap, XCircle } from "lucide-react";
 import Card from "../Components/Card";
-import { useDepartments } from "../hooks/useDepartments";
-import { useFetchStudents } from "../hooks/useFetchStudents";
+import useFetchResource from "../hooks/useFetchResource";
 export default function Dashboard() {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [attendance, setAttendance] = useState([]);
-  const { data: students = [], isLoading } = useFetchStudents();
+  const { data: students = [], isLoading } = useFetchResource(
+    "students/get-students",
+    "students"
+  );
 
-  const { data: deptOptions = [] } = useDepartments();
+  const { data: deptOptions = [] } = useFetchResource(
+    "students/get-departments",
+    "departments"
+  );
 
   const deptStudents = selectedDepartment
     ? students.filter((s) => s.department === selectedDepartment)
     : students;
 
-  const presentCount = attendance.filter((s) => s.status === "present").length;
+  const presentCount = attendance?.filter((s) => s.status === "present").length;
 
   const cardData = [
     {

@@ -5,27 +5,49 @@ import AddStudentModal from "../Components/AddStudentModal";
 import EditStudentModal from "../Components/EditStudentModal";
 import ConfirmDialog from "../Components/ConfirmDialogue";
 import CSVPreview from "../pages/CSVPreview";
-import { useFetchStudents } from "../hooks/useFetchStudents";
-import useDeleteStudent from "../hooks/useDeleteStudent";
+import useFetchResource from "../hooks/useFetchResource";
+import useCreateResource from "../hooks/useCreateResource";
+import useEditResource from "../hooks/useEditResource";
+import useDeleteResource from "../hooks/useDeleteResource";
 import { useFileUpload } from "../hooks/useFileUpload";
 
 export default function Student() {
-  const [students, setStudents] = useState([]);
+  // --- Local State ---
+  const [localStudents, setLocalStudents] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [editingStudent, setEditingStudent] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState(null);
-  const { mutate: deleteStudent } = useDeleteStudent();
-  const { data: studentsData, isLoading } = useFetchStudents();
+
   const { csvData, setCsvData, handleFileUpload } = useFileUpload();
 
+  // --- Hooks for CRUD ---
+  const { data: students = [], isLoading } = useFetchResource(
+    "students/get-students",
+    "students"
+  );
+  const { mutate: createStudent } = useCreateResource(
+    "students/create-student",
+    "students"
+  );
+
+  const { mutate: editStudent } = useEditResource(
+    "students/edit-student",
+    "students"
+  );
+
+  const { mutate: deleteStudent } = useDeleteResource(
+    "students/delete",
+    "students"
+  );
+
+  // --- Sync fetched data with local state ---
   useEffect(() => {
-    if (studentsData) {
-      setStudents(studentsData);
-    }
-  }, [studentsData]);
-  // Filter students
-  const filteredStudents = students.filter(
+    setLocalStudents(students);
+  }, [students]);
+
+  // --- Filtered Students ---
+  const filteredStudents = localStudents.filter(
     (student) =>
       (student.fullname || "")
         .toLowerCase()
@@ -39,32 +61,46 @@ export default function Student() {
       (student.section || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Edit student
+  // --- Handlers ---
   const handleEditStudent = (student) => setEditingStudent(student);
+
   const handleStudentUpdated = (updatedStudent) => {
-    setStudents((prev) =>
-      prev.map((s) => (s.id === updatedStudent.id ? updatedStudent : s))
-    );
-    setEditingStudent(null);
+    editStudent(updatedStudent, {
+      onSuccess: () => {
+        setLocalStudents((prev) =>
+          prev.map((s) => (s.id === updatedStudent.id ? updatedStudent : s))
+        );
+        setEditingStudent(null);
+      },
+    });
   };
 
-  // Delete student
   const handleDeleteStudent = (student) => {
     setStudentToDelete(student);
     setConfirmDelete(true);
   };
 
-  const confirmDeleteStudent = async () => {
-    deleteStudent(studentToDelete, {
+  const confirmDeleteStudent = () => {
+    deleteStudent(studentToDelete.id, {
       onSuccess: () => {
+        setLocalStudents((prev) =>
+          prev.filter((s) => s.id !== studentToDelete.id)
+        );
         setConfirmDelete(false);
         setStudentToDelete(null);
       },
     });
   };
 
-  // File upload (CSV/Excel)
+  const handleStudentAdded = (newStudent) => {
+    createStudent(newStudent, {
+      onSuccess: (data) => {
+        setLocalStudents((prev) => [...prev, data]);
+      },
+    });
+  };
 
+  // --- Loading state ---
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -72,6 +108,8 @@ export default function Student() {
       </div>
     );
   }
+
+  // --- Render ---
   return (
     <div className="flex flex-col h-screen bg-base-100">
       {/* Header */}
@@ -95,10 +133,8 @@ export default function Student() {
           </button>
 
           <AddStudentModal
-            label={`Add New Student `}
-            onStudentAdded={(newStudent) =>
-              setStudents((prev) => [...prev, newStudent])
-            }
+            label="Add New Student"
+            onStudentAdded={handleStudentAdded}
           />
 
           <label className="btn btn-outline cursor-pointer">
@@ -118,9 +154,9 @@ export default function Student() {
         <CSVPreview
           onClose={() => setCsvData([])}
           csvData={csvData}
-          fetchedStudents={students}
+          fetchedStudents={localStudents}
           onImportSuccess={(added) =>
-            setStudents((prev) => [...prev, ...added])
+            setLocalStudents((prev) => [...prev, ...added])
           }
         />
       )}

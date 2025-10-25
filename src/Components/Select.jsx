@@ -14,7 +14,7 @@ export default function Select({
 
   // Sync parent value with internal state
   useEffect(() => {
-    if (value && !options.includes(value)) {
+    if (value && !options?.includes(value)) {
       setIsCustom(true);
       setCustomValue(value); // show custom value
     } else {
