@@ -22,6 +22,7 @@ const fetchAttendanceStudents = async (
     `/attendance/fetch-students-with-attendance${query}`
   );
 
+  console.log("fetxhed attendanc", data.students);
   // Normalize shape if backend responds with { students }
   const students = Array.isArray(data) ? data : data.students || [];
   return students.map((student) => ({

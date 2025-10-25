@@ -13,7 +13,7 @@ const useCreateResource = (resource, queryKey) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries([queryKey]);
-      toast.success(`${resource} created successfully!`);
+      toast.success(`${queryKey} created successfully!`);
     },
   });
 };

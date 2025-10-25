@@ -8,13 +8,14 @@ export default function useEditResource(resource, queryKey) {
 
   return useMutation({
     mutationFn: async (data) => {
+      console.log("data rec", data);
       const { id, ...rest } = data; // separate ID from rest of fields
       const { data: response } = await api.put(`/${resource}/${id}`, rest);
       return response;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries([queryKey]);
       toast.success("Updated successfully!");
+      queryClient.invalidateQueries({ queryKey: [queryKey] });
     },
     onError: (err) => {
       toast.error("Failed to update.");
