@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { CalendarCheck } from "lucide-react";
-import { exportToCSV } from "../utils/exportToCSV";
+import exportToExcel from "../utils/exportToExcel";
 
 import SessionList from "../Components/SessionAttendance/SessionList";
 import AttendanceSummary from "../Components/SessionAttendance/AttendanceSummary";
@@ -21,13 +21,11 @@ export default function SessionAttendance() {
     "session/get-all-sessions",
     "sessions"
   );
-
   // 🔹 Normalize sessions data for UI here (previously done inside the hook)
   const sessions = useMemo(
     () =>
       rawSessions.map((session) => ({
         id: session.session_id,
-        subject: session.subject || session.department,
         department: session.department,
         batch: session.batch,
         section: session.section,
@@ -39,6 +37,9 @@ export default function SessionAttendance() {
             attendance_id: a.attendance_id,
             id: a.student_id,
             name: a.student_name,
+            department: a.department,
+            section: a.section,
+            batch: a.batch,
             id_number: a.id_number,
             gender: a.gender,
             status: a.status,
@@ -46,13 +47,11 @@ export default function SessionAttendance() {
       })),
     [rawSessions]
   );
-
   // 🔹 Format sessions for UI display
   const sessionsList = useMemo(
     () =>
       sessions.map((session) => ({
         id: session.id,
-        subject: session.subject,
         teacherName: session.teacher?.name,
         teacherEmail: session.teacher?.email,
         department: session.department,
@@ -198,7 +197,13 @@ export default function SessionAttendance() {
               setSearchTerm={setSearchTerm}
               filterStatus={filterStatus}
               setFilterStatus={setFilterStatus}
-              onExport={() => exportToCSV(filteredAttendance, "attendance.csv")}
+              onExport={() => {
+                if (!selectedSession) return;
+
+                const fileName = `${selectedSession.department}_${selectedSession.section}_Attendance_Report`;
+
+                exportToExcel(filteredAttendance, fileName, absenceStats);
+              }}
             />
             <AttendanceChart chartData={chartData} />
           </div>

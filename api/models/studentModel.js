@@ -177,17 +177,18 @@ export const updateStudentQuery = async ({
   section = null,
   gender,
   id_number,
+  id,
 }) => {
   const sql = `
     UPDATE students 
-    SET fullname = ?, department = ?, batch = ?, section = ?, gender = ?
-    WHERE id_number = ?
+    SET fullname = ?, department = ?, batch = ?, section = ?, gender = ?, id_number = ?
+    WHERE id = ?
   `;
-  const values = [fullname, department, batch, section, gender, id_number];
+  const values = [fullname, department, batch, section, gender, id_number, id];
   await db.execute(sql, values);
 
   // Return updated student
-  return findStudentById(id_number);
+  return findStudentById(id);
 };
 
 // Delete student

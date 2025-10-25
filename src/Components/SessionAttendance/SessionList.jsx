@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { MoreVertical } from "lucide-react";
 import useDeleteResource from "../../hooks/useDeleteResource";
-import SessionEditModal from "./SessionEditModal";
 
 export default function SessionList({ sessions, selectedSessionId, onSelect }) {
   const [openMenuId, setOpenMenuId] = useState(null);
   const [confirmId, setConfirmId] = useState(null);
-  const [editSession, setEditSession] = useState(null);
   const deleteSession = useDeleteResource("session/delete-session", "sessions");
 
   const toggleMenu = (id) => {
@@ -53,9 +51,6 @@ export default function SessionList({ sessions, selectedSessionId, onSelect }) {
         </dialog>
       )}
 
-      {/* Edit modal (from separate component) */}
-      {editSession && <SessionEditModal session={editSession} />}
-
       {/* Session cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-80 overflow-y-auto border-[0.5px] p-2 rounded-lg shadow-sm bg-base-100 border-accent/20">
         {sessions.map((s) => (
@@ -83,15 +78,6 @@ export default function SessionList({ sessions, selectedSessionId, onSelect }) {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setEditSession(s);
-                  }}
-                  className="btn btn-ghost btn-sm justify-start rounded-none px-4 py-2 hover:bg-base-300"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
                     setConfirmId(s.id);
                   }}
                   className="btn btn-ghost btn-sm justify-start rounded-none px-4 py-2 text-red-600 hover:bg-base-300"
@@ -102,7 +88,9 @@ export default function SessionList({ sessions, selectedSessionId, onSelect }) {
             )}
 
             <div className="card-body">
-              <h2 className="card-title capitalize">{s.subject}</h2>
+              <h2 className="card-title capitalize">
+                Deaprtement: {s.department}
+              </h2>
               <p>Teacher: {s.teacherName || "N/A"}</p>
               <p>Date: {s.date}</p>
               <p>

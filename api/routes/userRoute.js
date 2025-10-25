@@ -18,7 +18,7 @@ router.post("/create-user", registerUser); // POST /users → Create user
 router.post("/login", login); // POST /users/login → User login
 router.get("/get-user", authenticateUser, getUser);
 router.get("/verify/:token", verifyToken);
-router.put("/update-user", authenticateUser, updateUser);
+router.put("/update-user/:id", authenticateUser, updateUser);
 router.put("/change-password", authenticateUser, changePassword);
 router.get("/get-user-by-id/:id", getUserById);
 
