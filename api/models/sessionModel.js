@@ -123,3 +123,19 @@ ORDER BY s.session_date DESC, st.fullname ASC
 
   return Object.values(sessionsMap);
 };
+export const findSessionByIdAndDelete = async (session_id) => {
+  const [result] = await db.execute(`DELETE FROM sessions WHERE id = ?`, [
+    session_id,
+  ]);
+  return result.affectedRows > 0;
+};
+export const updateSession = async (
+  session_id,
+  { department, batch, section, session_date }
+) => {
+  const [result] = await db.execute(
+    `UPDATE sessions SET department=?, batch=?, section=?, session_date=? WHERE id=?`,
+    [department, batch, section, session_date, session_id]
+  );
+  return result.affectedRows > 0;
+};

@@ -1,4 +1,4 @@
-import { useState } from "react";
+// import { useState } from "react";
 import {
   X,
   LayoutDashboard,
@@ -7,11 +7,13 @@ import {
   CalendarCheck,
   UserCheck,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
+
 export default function Sidebar({ isOpen, setIsOpen }) {
-  const [active, setActive] = useState("Dashboard");
   const navigate = useNavigate();
+  const location = useLocation(); // get current pathname
+
   const menuItems = [
     {
       name: "Dashboard",
@@ -28,9 +30,8 @@ export default function Sidebar({ isOpen, setIsOpen }) {
     { name: "Settings", icon: <Settings size={20} />, path: "/settings" },
   ];
 
-  const handleNavigation = (item) => {
-    setActive(item.name);
-    navigate(item.path);
+  const handleNavigation = (path) => {
+    navigate(path);
     setIsOpen(false);
   };
 
@@ -39,13 +40,18 @@ export default function Sidebar({ isOpen, setIsOpen }) {
       {/* Sidebar */}
       <div
         className={`fixed top-0 left-0 h-full shadow-lg transition-all duration-300 z-40
-    ${isOpen ? "w-24 sm:w-40 lg:w-64" : "w-0 lg:w-64"} 
-    overflow-hidden bg-base-200`}
+          ${isOpen ? "w-24 sm:w-40 lg:w-64" : "w-0 lg:w-64"} 
+          overflow-hidden bg-base-200`}
       >
         {/* Logo + Close */}
         <div className="flex items-center justify-between p-4">
-          <h1 className="text-base font-bold">Attendio</h1>
-          {/* Close only on mobile */}
+          <h1
+            className="text-base font-bold cursor-pointer"
+            onClick={() => handleNavigation("/dashboard")}
+          >
+            Attendio
+          </h1>
+          {/* Close button on mobile */}
           <button
             onClick={() => setIsOpen(false)}
             className="lg:hidden text-base-content"
@@ -60,13 +66,13 @@ export default function Sidebar({ isOpen, setIsOpen }) {
             {menuItems.map((item, index) => (
               <button
                 key={index}
-                onClick={() => handleNavigation(item)}
+                onClick={() => handleNavigation(item.path)}
                 className={`flex items-center gap-3 px-4 py-2 w-full text-sm transition rounded-md
-              ${
-                active === item.name
-                  ? "bg-base-300 font-medium"
-                  : "hover:bg-base-300"
-              }`}
+                  ${
+                    location.pathname === item.path
+                      ? "bg-base-300 font-medium"
+                      : "hover:bg-base-300"
+                  }`}
               >
                 {item.icon}
                 <span className="truncate">{item.name}</span>
@@ -74,19 +80,18 @@ export default function Sidebar({ isOpen, setIsOpen }) {
             ))}
           </div>
 
-          {/* User Info */}
+          {/* User Info placeholder */}
         </nav>
       </div>
 
       {/* Main Content + Navbar */}
       <div className="flex-1 lg:ml-64">
         <div className="navbar bg-base-100 shadow-sm px-4">
-          {/* Hamburger (only on mobile/tablet) */}
+          {/* Hamburger for mobile */}
           <button
             onClick={() => setIsOpen(true)}
             className="btn btn-ghost btn-sm lg:hidden"
           >
-            {/* DaisyUI already ships with an icon, but using Lucide is fine */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5"

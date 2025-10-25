@@ -47,7 +47,7 @@ const LoginPage = () => {
               </span>
             </label>
             <input
-              type="email"
+              type="text"
               placeholder="Enter your email"
               className="input input-bordered w-full rounded-lg bg-gray-50 border text-gray-700 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
               {...register("email", { required: "Email is required" })}

@@ -119,7 +119,9 @@ const Attendance = () => {
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Attendance</h1>
-        <p>Today is {formatLocaldate(new Date())}</p>
+        <p className="font-bold font-serif">
+          Today is {formatLocaldate(new Date())}
+        </p>
       </div>
 
       {/* FILTERS */}
@@ -147,7 +149,7 @@ const Attendance = () => {
             className="btn btn-primary hover:text-accent "
             onClick={handleOpenModal}
           >
-            ➕ Start Session
+            <span className="material-icons">➕</span> Start Session
           </Button>
           {isModalOpen && (
             <SessionModal
@@ -220,7 +222,7 @@ const Attendance = () => {
 
           <Button
             onClick={handleResetFilters}
-            className="btn btn-outline btn-secondary"
+            className="btn btn-outline hover:text-accent "
           >
             Clear Filters
           </Button>

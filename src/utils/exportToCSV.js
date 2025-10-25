@@ -1,11 +1,21 @@
-// CSV Export helper
-export const exportToCSV = (data, fileName) => {
+export const exportToCSV = (data, fileName, absenceStats = {}) => {
   if (!data.length) return;
-  const headers = Object.keys(data[0]);
-  const csv = [
-    headers.join(","),
-    ...data.map((row) => headers.map((h) => `"${row[h]}"`).join(",")),
-  ].join("\n");
+
+  // Build headers including "Absent %"
+  const headers = [...Object.keys(data[0]), "Absent %"];
+
+  const csvRows = data.map((row) => {
+    const absentPercentage =
+      absenceStats[row.id_number]?.absentPercentage || "0";
+    return headers
+      .map((header) => {
+        if (header === "Absent %") return `"${absentPercentage}"`;
+        return `"${row[header] ?? ""}"`;
+      })
+      .join(",");
+  });
+
+  const csv = [headers.join(","), ...csvRows].join("\n");
 
   const blob = new Blob([csv], { type: "text/csv" });
   const url = URL.createObjectURL(blob);

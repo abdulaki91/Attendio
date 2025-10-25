@@ -7,7 +7,6 @@ import AttendanceSummary from "../Components/SessionAttendance/AttendanceSummary
 import AttendanceControls from "../Components/SessionAttendance/AttendanceControls";
 import AttendanceChart from "../Components/SessionAttendance/AttendanceChart";
 import AttendanceTable from "../Components/SessionAttendance/AttendanceTable";
-import StudentModal from "../Components/SessionAttendance/StudentModal";
 import LoadingSpinner from "../Components/LoadingSpinner";
 import { useFetchSessions } from "../hooks/useFetchSession";
 import toLocalString from "../utils/toLocalString";
@@ -16,7 +15,6 @@ export default function SessionAttendance() {
   const [selectedSessionId, setSelectedSessionId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
-  const [selectedStudent, setSelectedStudent] = useState(null);
 
   // 🔹 Fetch all sessions
   const { data: sessions = [], isLoading } = useFetchSessions();
@@ -27,8 +25,9 @@ export default function SessionAttendance() {
       sessions.map((session) => ({
         id: session.id,
         subject: session.department || session.subject,
-        teacherName: session.teacherName,
+        teacherName: session.teacher?.name,
         teacherEmail: session.teacherEmail,
+        department: session.department,
         date: toLocalString(session.date),
         batch: session.batch,
         section: session.section,
@@ -47,14 +46,16 @@ export default function SessionAttendance() {
     if (!selectedSession) return 0;
     return sessionsList.filter(
       (s) =>
-        s.subject === selectedSession.subject &&
+        s.department === selectedSession.department &&
         s.batch === selectedSession.batch &&
         s.section === selectedSession.section
     ).length;
   }, [selectedSession, sessionsList]);
 
-  // 🔹 Extract attendance for the selected session
-  const selectedAttendance = selectedSession?.students || [];
+  // 🔹 Extract attendance for the selected session (memoized to fix ESLint warning)
+  const selectedAttendance = useMemo(() => {
+    return selectedSession?.students || [];
+  }, [selectedSession]);
 
   // 🔹 Apply search & status filters
   const filteredAttendance = useMemo(
@@ -139,12 +140,12 @@ export default function SessionAttendance() {
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <CalendarCheck size={22} /> Session Attendance
         </h1>
-        <p className="mt-4 text-gray-600">No sessions available.</p>
+        <p className="mt-4">No sessions available.</p>
       </div>
     );
   }
 
-  // ✅ Main UI
+  //  Main UI
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-bold flex items-center gap-2">
@@ -167,8 +168,8 @@ export default function SessionAttendance() {
           <p className="text-md font-medium">
             Total Sessions for{" "}
             <span className="font-semibold">{selectedSession.subject}</span> (
-            {selectedSession.batch} - {selectedSession.section}):{" "}
-            <span className="font-semibold text-blue-600">{totalSessions}</span>
+            {selectedSession.batch} - {selectedSession.section}) :{" "}
+            <span className="font-bold  text-xl">{totalSessions}</span>
           </p>
 
           {/* Summary */}
@@ -193,13 +194,6 @@ export default function SessionAttendance() {
           <AttendanceTable
             data={filteredAttendance}
             absenceStats={absenceStats}
-            onSelectStudent={setSelectedStudent}
-          />
-
-          {/* Student Modal */}
-          <StudentModal
-            student={selectedStudent}
-            onClose={() => setSelectedStudent(null)}
           />
         </div>
       )}

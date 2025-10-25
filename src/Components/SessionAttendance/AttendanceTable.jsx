@@ -4,14 +4,15 @@ export default function AttendanceTable({
   absenceStats,
 }) {
   return (
-    <div className="overflow-auto max-h-72">
-      <table className="table table-zebra w-full">
+    <div className="overflow-auto max-h-72 ">
+      <table className="table table-zebra w-full mb-10">
         <thead>
           <tr>
             <th>#</th>
             <th>Name</th>
             <th>Status</th>
             <th>Absent %</th>
+            <th>isEligible</th>
           </tr>
         </thead>
         <tbody>
@@ -41,7 +42,8 @@ export default function AttendanceTable({
                       {student.status}
                     </span>
                   </td>
-                  <td className="text-center">{percentage}%</td>
+                  <td>{percentage}%</td>
+                  <td>{percentage < 25 ? "Yes" : "No"}</td>
                 </tr>
               );
             })

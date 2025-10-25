@@ -1,0 +1,88 @@
+import { useEffect, useState } from "react";
+import Select from "../Select";
+import { useBatches } from "../../hooks/useBatch";
+import { useSections } from "../../hooks/useSection";
+import { useDepartments } from "../../hooks/useDepartments";
+
+export default function SessionEditModal({ session, onClose, onSave }) {
+  const [formData, setFormData] = useState(session || {});
+  const { data: batches } = useBatches();
+  const { data: sections } = useSections();
+  const { data: departments } = useDepartments();
+
+  useEffect(() => {
+    setFormData(session || {});
+  }, [session]);
+
+  if (!session) return null;
+
+  // Unwrap the value from event object
+  const handleChange = (field, eventOrValue) => {
+    const value =
+      eventOrValue && eventOrValue.target
+        ? eventOrValue.target.value
+        : eventOrValue;
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave(formData);
+  };
+
+  return (
+    <dialog className={`modal ${session ? "modal-open" : ""}`}>
+      <div className="modal-box">
+        <h3 className="font-bold text-lg">Edit Session</h3>
+
+        <form onSubmit={handleSubmit} className="form-control space-y-3 mt-3">
+          <div>
+            <label className="label text-sm font-semibold">Department</label>
+            <Select
+              onChange={(val) => handleChange("department", val)}
+              options={departments || []}
+              value={formData.department || ""}
+            />
+          </div>
+
+          <div>
+            <label className="label text-sm font-semibold">Batch</label>
+            <Select
+              onChange={(val) => handleChange("batch", val)}
+              options={batches || []}
+              value={formData.batch || ""}
+            />
+          </div>
+
+          <div>
+            <label className="label text-sm font-semibold">Section</label>
+            <Select
+              onChange={(val) => handleChange("section", val)}
+              options={sections || []}
+              value={formData.section || ""}
+            />
+          </div>
+
+          <div>
+            <label className="label text-sm font-semibold">Date</label>
+            <input
+              type="date"
+              value={formData.date ? formData.date.split("T")[0] : ""}
+              onChange={(e) => handleChange("date", e)}
+              className="input input-bordered w-full"
+            />
+          </div>
+
+          <div className="modal-action">
+            <button type="button" className="btn btn-ghost" onClick={onClose}>
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary">
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+  );
+}
