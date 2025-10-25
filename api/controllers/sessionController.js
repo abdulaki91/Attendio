@@ -3,7 +3,6 @@ import {
   findExistingSession,
   getSessionsWithAttendance,
   findSessionByIdAndDelete,
-  updateSession,
   insertSession,
 } from "../models/sessionModel.js";
 import { findStudentsByDepartmentBatchSection } from "../models/studentModel.js";
@@ -80,28 +79,6 @@ export const deleteSession = async (req, res) => {
     }
 
     return res.status(200).json({ message: "Session deleted successfully" });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Server error" });
-  }
-};
-export const editSession = async (req, res) => {
-  const { id } = req.params;
-  const { department, batch, section, session_date } = req.body;
-
-  try {
-    const updatedSession = await updateSession(id, {
-      department,
-      batch,
-      section,
-      session_date,
-    });
-
-    if (!updatedSession) {
-      return res.status(404).json({ message: "Session not found" });
-    }
-
-    return res.status(200).json({ message: "Session updated successfully" });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });

@@ -207,7 +207,6 @@ export const editStudent = async (req, res) => {
     const { id } = req.params;
     const { fullname, department, batch, gender, id_number, section } =
       req.body;
-
     if (!fullname || !department || !id) {
       return res
         .status(400)
@@ -226,6 +225,7 @@ export const editStudent = async (req, res) => {
       section,
       gender,
       id_number,
+      id,
     });
 
     res.status(200).json({
@@ -271,7 +271,7 @@ export const getDepartments = async (req, res) => {
     }
 
     const departments = await getDepartmentsByTeacher(req.user.id);
-    return res.status(200).json({ data: departments });
+    return res.status(200).json(departments);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Failed to fetch departments" });
@@ -286,7 +286,7 @@ export const getBatches = async (req, res) => {
     }
 
     const batches = await getBatchesByTeacher(req.user.id);
-    return res.status(200).json({ data: batches });
+    return res.status(200).json(batches);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Failed to fetch batches" });
@@ -302,7 +302,7 @@ export const getSections = async (req, res) => {
     }
 
     const sections = await getSectionsByTeacher(req.user.id);
-    res.status(200).json({ data: sections });
+    res.status(200).json(sections);
   } catch (err) {
     console.error("Error fetching sections:", err);
     res.status(500).json({ message: "Failed to fetch sections" });

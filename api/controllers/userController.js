@@ -160,29 +160,36 @@ export const getUser = (req, res) => {
 
 export const updateUser = async (req, res, next) => {
   try {
-    const user = req.user; // from auth middleware
+    const { id } = req.params;
+    const { name, email } = req.body;
 
+    // You can allow only admins or self-update
+    const userId = req.user.id;
+
+    if (parseInt(id) !== userId) {
+      return res
+        .status(403)
+        .json({ message: "You can only update your own account" });
+    }
+
+    const user = req.user;
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const { name, email } = req.body;
-
     let verificationToken = null;
 
-    // Check if email is changing
+    // If user changes email
     if (email && email !== user.email) {
       verificationToken = crypto.randomBytes(32).toString("hex");
 
-      // Update with new email, set verified = 0, add verification token
-      await updateUserQuery(user.id, {
+      await updateUserQuery(userId, {
         name,
         email,
         verified: 0,
         verificationToken,
       });
 
-      // Send verification email
       const verifyUrl = `${process.env.BACKEND_URL}/api/users/verify/${verificationToken}`;
       await sendEmail({
         email,
@@ -197,8 +204,8 @@ export const updateUser = async (req, res, next) => {
       });
     }
 
-    // If email is not changing, just update name or other fields
-    await updateUserQuery(user.id, { name });
+    // Update only name if email unchanged
+    await updateUserQuery(userId, { name });
 
     res.status(200).json({ message: "User updated successfully" });
   } catch (err) {
@@ -206,6 +213,7 @@ export const updateUser = async (req, res, next) => {
     next(err);
   }
 };
+
 // / Express route handler
 export const changePassword = async (req, res, next) => {
   try {

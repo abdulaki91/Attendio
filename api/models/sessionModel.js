@@ -66,7 +66,7 @@ export const getSessionsWithAttendance = async (teacher_id) => {
     st.fullname AS student_name,
     st.id_number,
     st.gender,
-    st.department AS st_department,
+    st.department,
     a.id AS attendance_id,
     a.status AS attendance_status,
     a.attendance_date,
@@ -111,7 +111,10 @@ ORDER BY s.session_date DESC, st.fullname ASC
         attendance_id: row.attendance_id,
         student_id: row.student_id,
         student_name: row.student_name,
+        section: row.section,
+        batch: row.batch,
         id_number: row.id_number,
+        department: row.department,
         gender: row.gender,
         status: row.attendance_status,
         attendance_date: row.attendance_date,
@@ -127,15 +130,5 @@ export const findSessionByIdAndDelete = async (session_id) => {
   const [result] = await db.execute(`DELETE FROM sessions WHERE id = ?`, [
     session_id,
   ]);
-  return result.affectedRows > 0;
-};
-export const updateSession = async (
-  session_id,
-  { department, batch, section, session_date }
-) => {
-  const [result] = await db.execute(
-    `UPDATE sessions SET department=?, batch=?, section=?, session_date=? WHERE id=?`,
-    [department, batch, section, session_date, session_id]
-  );
   return result.affectedRows > 0;
 };
