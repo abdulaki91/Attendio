@@ -1,15 +1,15 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
-import baseUri from "../baseURI/BaseUri";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import useCreateResource from "../hooks/useCreateResource";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => localStorage.getItem("token"));
   const [userId, setUserId] = useState(() => localStorage.getItem("userId"));
   const queryClient = useQueryClient();
-
+  const userMutation = useCreateResource("users/login", "users");
   useEffect(() => {
     if (token) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
 
   const login = async (credentials) => {
     try {
-      const { data } = await axios.post(`${baseUri}/users/login`, credentials);
+      const data = await userMutation.mutateAsync(credentials);
       setToken(data.token);
       setUserId(data.user.id);
 

@@ -8,25 +8,57 @@ import AttendanceControls from "../Components/SessionAttendance/AttendanceContro
 import AttendanceChart from "../Components/SessionAttendance/AttendanceChart";
 import AttendanceTable from "../Components/SessionAttendance/AttendanceTable";
 import LoadingSpinner from "../Components/LoadingSpinner";
-import { useFetchSessions } from "../hooks/useFetchSession";
 import toLocalString from "../utils/toLocalString";
+import useFetchResource from "../hooks/useFetchResource";
 
 export default function SessionAttendance() {
   const [selectedSessionId, setSelectedSessionId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
 
-  // 🔹 Fetch all sessions
-  const { data: sessions = [], isLoading } = useFetchSessions();
+  // 🔹 Fetch all sessions (raw)
+  const { data: rawSessions = [], isLoading } = useFetchResource(
+    "session/get-all-sessions",
+    "sessions"
+  );
 
-  // 🔹 Normalize session data
+  console.log("raw sessions", rawSessions);
+
+  // 🔹 Normalize sessions data for UI here (previously done inside the hook)
+  const sessions = useMemo(
+    () =>
+      rawSessions.map((session) => ({
+        id: session.session_id,
+        subject: session.subject || session.department,
+        department: session.department,
+        batch: session.batch,
+        section: session.section,
+        date: new Date(session.session_date).toLocaleDateString(),
+        created_at: new Date(session.created_at).toLocaleString(),
+        teacher: session.teacher,
+        students:
+          session.attendance?.map((a) => ({
+            attendance_id: a.attendance_id,
+            id: a.student_id,
+            name: a.student_name,
+            id_number: a.id_number,
+            gender: a.gender,
+            status: a.status,
+          })) || [],
+      })),
+    [rawSessions]
+  );
+
+  console.log("normalized sessions", sessions);
+
+  // 🔹 Format sessions for UI display
   const sessionsList = useMemo(
     () =>
       sessions.map((session) => ({
         id: session.id,
-        subject: session.department || session.subject,
+        subject: session.subject,
         teacherName: session.teacher?.name,
-        teacherEmail: session.teacherEmail,
+        teacherEmail: session.teacher?.email,
         department: session.department,
         date: toLocalString(session.date),
         batch: session.batch,
@@ -36,12 +68,10 @@ export default function SessionAttendance() {
     [sessions]
   );
 
-  // 🔹 Find the currently selected session
   const selectedSession = sessionsList.find(
     (session) => session.id === selectedSessionId
   );
 
-  // 🔹 Calculate total sessions for the selected class
   const totalSessions = useMemo(() => {
     if (!selectedSession) return 0;
     return sessionsList.filter(
@@ -52,12 +82,11 @@ export default function SessionAttendance() {
     ).length;
   }, [selectedSession, sessionsList]);
 
-  // 🔹 Extract attendance for the selected session (memoized to fix ESLint warning)
-  const selectedAttendance = useMemo(() => {
-    return selectedSession?.students || [];
-  }, [selectedSession]);
+  const selectedAttendance = useMemo(
+    () => selectedSession?.students || [],
+    [selectedSession]
+  );
 
-  // 🔹 Apply search & status filters
   const filteredAttendance = useMemo(
     () =>
       selectedAttendance
@@ -68,7 +97,6 @@ export default function SessionAttendance() {
     [selectedAttendance, searchTerm, filterStatus]
   );
 
-  // 🔹 Attendance summary for the selected session
   const summary = useMemo(() => {
     const present = selectedAttendance.filter(
       (a) => a.status === "Present"
@@ -79,7 +107,6 @@ export default function SessionAttendance() {
     return { present, absent, total: selectedAttendance.length };
   }, [selectedAttendance]);
 
-  // 🔹 Calculate absence % per student across all sessions of that class
   const absenceStats = useMemo(() => {
     if (!selectedSession || totalSessions === 0) return {};
 
@@ -94,7 +121,7 @@ export default function SessionAttendance() {
 
     classSessions.forEach((session) => {
       session.students.forEach((student) => {
-        const id = student.id_number || student.id || student.name; // safer fallback
+        const id = student.id_number || student.id || student.name;
         if (!stats[id]) {
           stats[id] = { name: student.name, totalAbsent: 0 };
         }
@@ -104,7 +131,6 @@ export default function SessionAttendance() {
       });
     });
 
-    // Compute absence percentage
     Object.keys(stats).forEach((id) => {
       stats[id].absentPercentage = (
         (stats[id].totalAbsent / totalSessions) *
@@ -115,13 +141,11 @@ export default function SessionAttendance() {
     return stats;
   }, [selectedSession, sessionsList, totalSessions]);
 
-  // 🔹 Chart Data
   const chartData = [
     { name: "Present", value: summary.present },
     { name: "Absent", value: summary.absent },
   ];
 
-  // 🔹 Loading state
   if (isLoading) {
     return (
       <div className="p-6 space-y-6">
@@ -133,7 +157,6 @@ export default function SessionAttendance() {
     );
   }
 
-  // 🔹 Empty state
   if (!sessions.length) {
     return (
       <div className="p-6">
@@ -145,40 +168,34 @@ export default function SessionAttendance() {
     );
   }
 
-  //  Main UI
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-bold flex items-center gap-2">
         <CalendarCheck size={22} /> Session Attendance
       </h1>
 
-      {/* 🔸 Session List */}
       <SessionList
         sessions={sessionsList}
         selectedSessionId={selectedSessionId}
         onSelect={setSelectedSessionId}
       />
 
-      {/* 🔸 Attendance Details */}
       {selectedSession && (
         <div className="mt-6 space-y-4">
           <h2 className="text-xl font-semibold mb-2">Attendance Details</h2>
 
-          {/* Total Sessions */}
           <p className="text-md font-medium">
             Total Sessions for{" "}
             <span className="font-semibold">{selectedSession.subject}</span> (
             {selectedSession.batch} - {selectedSession.section}) :{" "}
-            <span className="font-bold  text-xl">{totalSessions}</span>
+            <span className="font-bold text-xl">{totalSessions}</span>
           </p>
 
-          {/* Summary */}
           <AttendanceSummary
             summary={summary}
             setFilterStatus={setFilterStatus}
           />
 
-          {/* Controls + Chart */}
           <div className="grid md:grid-cols-2 gap-4 items-center">
             <AttendanceControls
               searchTerm={searchTerm}
@@ -190,7 +207,6 @@ export default function SessionAttendance() {
             <AttendanceChart chartData={chartData} />
           </div>
 
-          {/* Table */}
           <AttendanceTable
             data={filteredAttendance}
             absenceStats={absenceStats}

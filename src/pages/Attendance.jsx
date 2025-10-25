@@ -1,16 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import LoadingSpinner from "../components/LoadingSpinner";
+import LoadingSpinner from "../Components/LoadingSpinner";
 import Select from "../Components/Select";
 import Button from "../Components/Button";
 import usePrint from "../hooks/usePrint";
 import formatLocaldate from "../utils/formatLocaldate";
-import useMarkStudent from "../hooks/useMarkStudent";
 import { useAttendanceStudents } from "../hooks/useAttendanceStudents";
-import { useDepartments } from "../hooks/useDepartments";
-import { useBatches } from "../hooks/useBatch";
-import { useSections } from "../hooks/useSection"; // ✅ new custom hook for sections
-import useCreateSession from "../hooks/useCreateSession";
 import SessionModal from "../Components/SessionModal";
+import useFetchResource from "../hooks/useFetchResource";
+import useCreateResource from "../hooks/useCreateResource";
 const Attendance = () => {
   // ======= STATE =======
   const [year, setYear] = useState(new Date().getFullYear());
@@ -39,11 +36,25 @@ const Attendance = () => {
   ];
 
   // ======= HOOKS =======
-  const { mutate: markStudent } = useMarkStudent();
-  const { data: departments = [] } = useDepartments();
-  const { data: batches = [] } = useBatches();
-  const { data: sections = [] } = useSections();
-  const createSession = useCreateSession(); // if you have one
+  const { mutate: markStudent } = useCreateResource(
+    "attendance/create-attendance",
+    "attendance"
+  );
+
+  const { data: departments = [] } = useFetchResource(
+    "students/get-departments",
+    "departments"
+  );
+  const { data: batches = [] } = useFetchResource(
+    "students/get-batches",
+    "batches"
+  );
+  const { data: sections = [] } = useFetchResource(
+    "students/get-sections",
+    "sections"
+  );
+
+  const createSession = useCreateResource("session/create-session", "session");
 
   const tableRef = useRef(null);
   const formattedDate = new Date(year, month - 1).toLocaleString("default", {
@@ -66,7 +77,7 @@ const Attendance = () => {
     `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
   const toggleAttendance = (studentId, day) => {
-    markStudent({ studentId, date: formattedDay(day) });
+    markStudent({ student_id: studentId, attendance_date: formattedDay(day) });
   };
 
   const { data: students = [], isLoading } = useAttendanceStudents({
