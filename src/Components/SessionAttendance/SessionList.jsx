@@ -1,18 +1,13 @@
 import { useEffect, useState } from "react";
 import { MoreVertical } from "lucide-react";
-import useDeleteSession from "../../hooks/useDeleteSession";
+import useDeleteResource from "../../hooks/useDeleteResource";
 import SessionEditModal from "./SessionEditModal";
 
-export default function SessionList({
-  sessions,
-  selectedSessionId,
-  onSelect,
-  onEdit,
-}) {
+export default function SessionList({ sessions, selectedSessionId, onSelect }) {
   const [openMenuId, setOpenMenuId] = useState(null);
   const [confirmId, setConfirmId] = useState(null);
   const [editSession, setEditSession] = useState(null);
-  const deleteSession = useDeleteSession();
+  const deleteSession = useDeleteResource("session/delete-session", "sessions");
 
   const toggleMenu = (id) => {
     setOpenMenuId(openMenuId === id ? null : id);
@@ -33,13 +28,6 @@ export default function SessionList({
       setOpenMenuId(null);
     }
   };
-
-  const handleEditSave = (updatedSession) => {
-    onEdit(updatedSession);
-    setEditSession(null);
-    setOpenMenuId(null);
-  };
-
   return (
     <>
       {/* Delete confirmation modal */}
@@ -66,13 +54,7 @@ export default function SessionList({
       )}
 
       {/* Edit modal (from separate component) */}
-      {editSession && (
-        <SessionEditModal
-          session={editSession}
-          onClose={() => setEditSession(null)}
-          onSave={handleEditSave}
-        />
-      )}
+      {editSession && <SessionEditModal session={editSession} />}
 
       {/* Session cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-80 overflow-y-auto border-[0.5px] p-2 rounded-lg shadow-sm bg-base-100 border-accent/20">

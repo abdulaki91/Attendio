@@ -3,8 +3,16 @@ import Select from "../Select";
 import { useBatches } from "../../hooks/useBatch";
 import { useSections } from "../../hooks/useSection";
 import { useDepartments } from "../../hooks/useDepartments";
+const formatDateForInput = (date) => {
+  if (!date) return "";
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
-export default function SessionEditModal({ session, onClose, onSave }) {
+export default function SessionEditModal({ session, onClose }) {
   const [formData, setFormData] = useState(session || {});
   const { data: batches } = useBatches();
   const { data: sections } = useSections();
@@ -24,10 +32,16 @@ export default function SessionEditModal({ session, onClose, onSave }) {
         : eventOrValue;
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+
+    // Create a new object to submit
+    const newSessionData = {
+      department: formData.department || session.department,
+      batch: formData.batch || session.batch,
+      section: formData.section || session.section,
+      session_date: formData.date || session.date,
+    };
   };
 
   return (
@@ -67,7 +81,7 @@ export default function SessionEditModal({ session, onClose, onSave }) {
             <label className="label text-sm font-semibold">Date</label>
             <input
               type="date"
-              value={formData.date ? formData.date.split("T")[0] : ""}
+              value={formatDateForInput(formData.date)}
               onChange={(e) => handleChange("date", e)}
               className="input input-bordered w-full"
             />
