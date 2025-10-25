@@ -1,18 +1,26 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "../hooks/useCurrentUser";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import userAvatar from "../assets/images/user.png";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/api";
+import useFetchResource from "../hooks/useFetchResource";
+import useEditResource from "../hooks/useEditResource";
+
 export default function SettingPage() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const { logout } = useAuth();
 
   // Fetch current user
-  const { data: user, isLoading: userLoading } = useUser();
-  const { logout } = useAuth();
+  const userId = localStorage.getItem("userId");
+  const { data: user, isLoading: userLoading } = useFetchResource(
+    `users/get-user-by-id/${userId}`
+  );
+
+  // Edit user mutation
+  const editUser = useEditResource("users/update-user", "users");
+
   // Local profile state synced with user
   const [profile, setProfile] = useState({ name: "", email: "" });
   const [isEditing, setIsEditing] = useState(false);
@@ -24,43 +32,32 @@ export default function SettingPage() {
     confirmPassword: "",
   });
 
-  // Sync profile state with fetched user
+  // Sync profile when user data loads
   useEffect(() => {
     if (user) setProfile({ name: user.name, email: user.email });
   }, [user]);
 
+  // Toggle edit mode
   const handleEditToggle = () => setIsEditing(!isEditing);
 
-  // ==============================
-  // Profile Update Mutation (React Query v5)
-  // ==============================
-  const updateUserMutation = useMutation({
-    mutationFn: async (updatedData) => {
-      const { data } = await api.put(`/users/update-user`, updatedData);
-      return data;
-    },
-    onSuccess: (data) => {
-      // Update the cache for the current user
-      queryClient.setQueryData(["user", user.id], data);
-      toast.success("Profile updated successfully");
-      setIsEditing(false);
-    },
-    onError: (err) => {
-      toast.error(err.response?.data?.message || "Failed to update profile");
-    },
-  });
-
+  // Save profile changes
   const handleSaveProfile = () => {
     if (!profile.name || !profile.email) {
       toast.error("Name and email cannot be empty");
       return;
     }
-    updateUserMutation.mutate(profile);
+
+    editUser.mutate(
+      { id: user?.id, ...profile },
+      {
+        onSuccess: () => {
+          setIsEditing(false);
+        },
+      }
+    );
   };
 
-  // ==============================
-  // Password Change Mutation (React Query v5)
-  // ==============================
+  // Password change mutation
   const changePasswordMutation = useMutation({
     mutationFn: async (passwordData) => {
       await api.put(`/users/change-password`, passwordData);
@@ -83,12 +80,14 @@ export default function SettingPage() {
       toast.error("New passwords do not match");
       return;
     }
+
     changePasswordMutation.mutate({
       currentPassword: passwords.currentPassword,
       newPassword: passwords.newPassword,
     });
   };
 
+  // Logout
   const handleLogout = () => {
     logout();
     navigate("/login");
@@ -103,14 +102,9 @@ export default function SettingPage() {
           <h1 className="text-3xl font-extrabold tracking-tight text-primary">
             Settings
           </h1>
-          <div className="flex items-center gap-4">
-            <button
-              className="btn btn-error btn-outline"
-              onClick={handleLogout}
-            >
-              Log Out
-            </button>
-          </div>
+          <button className="btn btn-error btn-outline" onClick={handleLogout}>
+            Log Out
+          </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -131,9 +125,9 @@ export default function SettingPage() {
                     <button
                       onClick={handleSaveProfile}
                       className="btn btn-primary btn-sm"
-                      disabled={updateUserMutation.isLoading}
+                      disabled={editUser.isLoading}
                     >
-                      {updateUserMutation.isLoading ? (
+                      {editUser.isLoading ? (
                         <span className="loading loading-spinner loading-sm text-base-100"></span>
                       ) : (
                         "Save"
@@ -182,6 +176,7 @@ export default function SettingPage() {
                     }
                   />
                 </label>
+
                 <label className="form-control w-full">
                   <div className="label">
                     <span className="label-text">Email</span>

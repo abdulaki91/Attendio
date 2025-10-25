@@ -1,14 +1,12 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useQueryClient } from "@tanstack/react-query";
 import useCreateResource from "../hooks/useCreateResource";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => localStorage.getItem("token"));
   const [userId, setUserId] = useState(() => localStorage.getItem("userId"));
-  const queryClient = useQueryClient();
   const userMutation = useCreateResource("users/login", "users");
   useEffect(() => {
     if (token) {
@@ -28,7 +26,6 @@ export function AuthProvider({ children }) {
       localStorage.setItem("userId", data.user.id);
 
       axios.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
-      toast.success("Logged in successfully");
     } catch (error) {
       console.error("Login failed:", error);
       toast.error(
@@ -43,8 +40,7 @@ export function AuthProvider({ children }) {
     setUserId(null);
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
-    queryClient.removeQueries(); // removes all queries
-    queryClient.clear();
+
     delete axios.defaults.headers.common["Authorization"];
   };
 

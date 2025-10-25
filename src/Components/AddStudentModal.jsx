@@ -2,10 +2,8 @@ import { useState } from "react";
 import Input from "../Components/Input";
 import Select from "../Components/Select";
 import toast from "react-hot-toast";
-import { useAddStudent } from "../hooks/useAddStudent";
-import { useDepartments } from "../hooks/useDepartments";
-import { useBatches } from "../hooks/useBatch";
-import { useSections } from "../hooks/useSection";
+import useFetchResource from "../hooks/useFetchResource";
+import useCreateResource from "../hooks/useCreateResource";
 
 export default function AddStudentModal({ label }) {
   const [form, setForm] = useState({
@@ -17,11 +15,23 @@ export default function AddStudentModal({ label }) {
     gender: "",
   });
 
-  const { data: departments = [] } = useDepartments();
-  const { data: batches = [] } = useBatches();
-  const { data: sections = [] } = useSections();
+  const { data: departments = [] } = useFetchResource(
+    "students/get-departments",
+    "departments"
+  );
+  const { data: batches = [] } = useFetchResource(
+    "students/get-batches",
+    "batches"
+  );
+  const { data: sections = [] } = useFetchResource(
+    "students/get-sections",
+    "sections"
+  );
 
-  const { mutate: addStudent } = useAddStudent();
+  const { mutate: addStudent } = useCreateResource(
+    "students/add-student",
+    "students"
+  );
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };

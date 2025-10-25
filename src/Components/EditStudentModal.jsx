@@ -1,16 +1,23 @@
 import { useState, useEffect } from "react";
 import Input from "../Components/Input";
 import Select from "../Components/Select";
-import { useEditStudent } from "../hooks/UseEditStudent";
-import { useBatches } from "../hooks/useBatch";
-import { useSections } from "../hooks/useSection";
-import { useDepartments } from "../hooks/useDepartments";
+import useFetchResource from "../hooks/useFetchResource";
+import useEditResource from "../hooks/useEditResource";
 export default function EditStudentModal({ student, onClose }) {
   const [form, setForm] = useState({});
-  const editStudent = useEditStudent();
-  const { data: sections = [] } = useSections();
-  const { data: departments = [] } = useDepartments();
-  const { data: batch = [] } = useBatches();
+  const editStudent = useEditResource("students/edit", "students");
+  const { data: sections = [] } = useFetchResource(
+    "students/get-sections",
+    "sections"
+  );
+  const { data: departments = [] } = useFetchResource(
+    "students/get-departments",
+    "departments"
+  );
+  const { data: batch = [] } = useFetchResource(
+    "students/get-batches",
+    "batches"
+  );
   useEffect(() => {
     if (student) setForm(student);
   }, [student]);

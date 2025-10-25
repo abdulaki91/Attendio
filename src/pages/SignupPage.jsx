@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
-import baseUri from "../baseURI/BaseUri";
 import toast from "react-hot-toast";
+import useCreateResource from "../hooks/useCreateResource";
 
 export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -13,10 +12,13 @@ export default function SignupPage() {
     password: "",
     confirmPassword: "",
   });
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-
+  const { mutate: createUser, isLoading: loading } = useCreateResource(
+    "users/create-user",
+    "users"
+  );
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -24,30 +26,22 @@ export default function SignupPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ✅ Validate passwords match
+    //  Validate passwords match
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match");
       return;
     }
 
-    setLoading(true);
-    try {
-      await axios.post(`${baseUri}/users/create-user`, {
+    createUser(
+      {
         name: formData.name,
         email: formData.email,
         password: formData.password,
-      });
-
-      toast.success("Account created successfully!", { duration: 5000 });
-      setFormData({ name: "", email: "", password: "", confirmPassword: "" });
-
-      // Navigate after a short delay
-      setTimeout(() => navigate("/check-email"), 1000);
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Something went wrong!");
-    } finally {
-      setLoading(false);
-    }
+      },
+      {
+        onSuccess: () => navigate("/check-email"), // remove setTimeout
+      }
+    );
   };
 
   return (

@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import Select from "../Select";
-import { useBatches } from "../../hooks/useBatch";
-import { useSections } from "../../hooks/useSection";
-import { useDepartments } from "../../hooks/useDepartments";
+import useFetchResource from "../../hooks/useFetchResource";
 const formatDateForInput = (date) => {
   if (!date) return "";
   const d = new Date(date);
@@ -14,9 +12,15 @@ const formatDateForInput = (date) => {
 
 export default function SessionEditModal({ session, onClose }) {
   const [formData, setFormData] = useState(session || {});
-  const { data: batches } = useBatches();
-  const { data: sections } = useSections();
-  const { data: departments } = useDepartments();
+  const { data: batches } = useFetchResource("students/get-batches", "batches");
+  const { data: sections } = useFetchResource(
+    "students/get-sections",
+    "sections"
+  );
+  const { data: departments } = useFetchResource(
+    "students/get-departments",
+    "departments"
+  );
 
   useEffect(() => {
     setFormData(session || {});

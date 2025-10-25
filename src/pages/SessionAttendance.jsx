@@ -22,8 +22,6 @@ export default function SessionAttendance() {
     "sessions"
   );
 
-  console.log("raw sessions", rawSessions);
-
   // 🔹 Normalize sessions data for UI here (previously done inside the hook)
   const sessions = useMemo(
     () =>
@@ -48,8 +46,6 @@ export default function SessionAttendance() {
       })),
     [rawSessions]
   );
-
-  console.log("normalized sessions", sessions);
 
   // 🔹 Format sessions for UI display
   const sessionsList = useMemo(
