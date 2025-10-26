@@ -85,7 +85,7 @@ const Attendance = () => {
     month,
     department: selectedDepartment,
     batch: selectedBatch,
-    section: selectedSection, // ✅ added filter
+    section: selectedSection, //  added filter
   });
 
   // ======= MEMOIZED VALUES =======
@@ -204,20 +204,25 @@ const Attendance = () => {
         </div>
 
         {/* CONTROLS */}
-        <div className="flex items-center gap-2">
-          <select
-            className="select select-bordered select-sm md:select-md"
-            value={month}
-            onChange={(e) => setMonth(Number(e.target.value))}
-          >
-            {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-              <option key={m} value={m}>
-                {new Date(0, m - 1).toLocaleString("default", {
-                  month: "long",
-                })}
-              </option>
-            ))}
-          </select>
+        <div className="grid items-center gap-2 sm:grid-cols-2 md:grid-cols-4 ">
+          <Select
+            label="Month"
+            options={Array.from({ length: 12 }, (_, i) =>
+              new Date(0, i).toLocaleString("default", { month: "long" })
+            )}
+            value={new Date(0, month - 1).toLocaleString("default", {
+              month: "long",
+            })}
+            onChange={(e) => {
+              const selectedMonth = e.target.value;
+              const monthIndex = Array.from({ length: 12 }, (_, i) =>
+                new Date(0, i).toLocaleString("default", { month: "long" })
+              ).indexOf(selectedMonth);
+              setMonth(monthIndex + 1);
+            }}
+            placeholder="Select Month"
+            allowOther={false}
+          />
 
           <input
             type="number"
