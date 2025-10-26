@@ -20,17 +20,17 @@ export default function Sidebar({ isOpen, setIsOpen }) {
   const menuItems = [
     {
       name: "Dashboard",
-      icon: <LayoutDashboard size={20} />,
+      icon: <LayoutDashboard size={16} />,
       path: "/dashboard",
     },
-    { name: "Student", icon: <User size={20} />, path: "/student" },
+    { name: "Student", icon: <User size={16} />, path: "/student" },
     {
       name: "Session Attendance",
-      icon: <CalendarCheck size={20} />,
+      icon: <CalendarCheck size={16} />,
       path: "/session-attendance",
     },
-    { name: "Attendance", icon: <UserCheck size={20} />, path: "/attendance" },
-    { name: "Settings", icon: <Settings size={20} />, path: "/settings" },
+    { name: "Attendance", icon: <UserCheck size={16} />, path: "/attendance" },
+    { name: "Settings", icon: <Settings size={16} />, path: "/settings" },
   ];
 
   const handleNavigation = (path) => {
@@ -52,7 +52,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
           overflow-hidden bg-base-200`}
       >
         {/* Logo + Close */}
-        <div className="flex items-center justify-between p-4">
+        <div className="flex items-center justify-between p-2 sm:p-3 lg:p-4 border-b border-base-300 gap-2">
           <h1
             className="text-base font-bold cursor-pointer"
             onClick={() => handleNavigation("/dashboard")}
@@ -64,18 +64,18 @@ export default function Sidebar({ isOpen, setIsOpen }) {
             onClick={() => setIsOpen(false)}
             className="lg:hidden text-base-content"
           >
-            <X size={20} className="hover:text-error" />
+            <X size={15} className="hover:text-error" color="red" />
           </button>
         </div>
 
         {/* Menu */}
-        <nav className="mt-8 flex flex-col justify-between h-[calc(100%-4rem)]">
+        <nav className="mt-4 flex flex-col justify-between h-[calc(100%-4rem)] sm:p-1 lg:p-4">
           <div>
             {menuItems.map((item, index) => (
               <button
                 key={index}
                 onClick={() => handleNavigation(item.path)}
-                className={`flex items-center gap-3 px-4 py-2 w-full text-sm transition rounded-md
+                className={`flex items-center gap-1 px-2 py-1  transition rounded-md
                   ${
                     location.pathname === item.path
                       ? "bg-base-300 font-medium"
@@ -83,7 +83,9 @@ export default function Sidebar({ isOpen, setIsOpen }) {
                   }`}
               >
                 {item.icon}
-                <span className="truncate">{item.name}</span>
+                <span className="truncate text-[8px] sm:text-sm lg:text-base ">
+                  {item.name}
+                </span>
               </button>
             ))}
           </div>
@@ -94,8 +96,27 @@ export default function Sidebar({ isOpen, setIsOpen }) {
       {/* Main Content + Navbar */}
       <div className="flex-1 lg:ml-64">
         <div className="navbar bg-base-100 shadow-sm px-4">
-          {visible && (
-            <div className="p-4 mb-4 bg-base-100 rounded-lg shadow-md border border-base-300 relative m-auto">
+          <button
+            onClick={() => setIsOpen(true)}
+            className="btn btn-ghost btn-sm lg:hidden"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+          {visible && !isOpen && (
+            <div className="p-2 md:p-3 lg:p-4 mb-2 text-xs sm:text-sm md:textarea-md bg-base-100 rounded-lg shadow-md border border-base-300 relative m-auto">
               <button
                 onClick={handleDismiss}
                 className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
@@ -117,25 +138,6 @@ export default function Sidebar({ isOpen, setIsOpen }) {
               </button>
             </div>
           )}
-          <button
-            onClick={() => setIsOpen(true)}
-            className="btn btn-ghost btn-sm lg:hidden"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
         </div>
         <Navbar />
       </div>
