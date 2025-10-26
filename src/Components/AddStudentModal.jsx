@@ -32,6 +32,7 @@ export default function AddStudentModal({ label }) {
     "students/add-student",
     "students"
   );
+
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
@@ -39,7 +40,6 @@ export default function AddStudentModal({ label }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate required fields
     if (
       !form.fullname ||
       !form.department ||
@@ -72,12 +72,14 @@ export default function AddStudentModal({ label }) {
   return (
     <div>
       <dialog id="add_student_modal" className="modal">
-        <div className="modal-box w-max p-0 overflow-hidden">
-          <div className="bg-gradient-to-r from-secondary/20 via-secondary/10 to-transparent px-6 py-4 border-b border-base-300/50 flex items-center justify-between">
-            <h3 className="font-bold text-xl text-secondary">{label}</h3>
+        <div className="modal-box max-w-sm sm:max-w-lg md:max-w-2xl w-full p-0 overflow-hidden">
+          <div className="bg-gradient-to-r from-secondary/20 via-secondary/10 to-transparent px-4 sm:px-6 py-3 sm:py-4 border-b border-base-300/50 flex items-center justify-between">
+            <h3 className="font-bold text-lg sm:text-xl md:text-2xl text-secondary">
+              {label}
+            </h3>
             <button
               type="button"
-              className="btn btn-ghost btn-sm"
+              className="btn btn-ghost btn-sm text-xl"
               onClick={() =>
                 document.getElementById("add_student_modal").close()
               }
@@ -88,26 +90,30 @@ export default function AddStudentModal({ label }) {
 
           <form
             onSubmit={handleSubmit}
-            className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5"
+            className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm md:text-base"
           >
             <Input
+              label="Full Name"
               placeholder="Enter full name"
               value={form.fullname}
               onChange={(e) => handleChange("fullname", e.target.value)}
             />
             <Input
+              label="ID Number"
               placeholder="Enter ID number"
               value={form.id_number}
               onChange={(e) => handleChange("id_number", e.target.value)}
             />
             <Select
+              label="Department"
               className="w-full"
-              placeholder="Enter department"
+              placeholder="Select department"
               options={departments}
               value={form.department}
               onChange={(e) => handleChange("department", e.target.value)}
             />
             <Select
+              label="Section"
               className="w-full"
               placeholder="Select section"
               options={sections}
@@ -115,6 +121,7 @@ export default function AddStudentModal({ label }) {
               onChange={(e) => handleChange("section", e.target.value)}
             />
             <Select
+              label="Gender"
               className="w-full"
               placeholder="Select gender"
               options={["Male", "Female"]}
@@ -122,6 +129,7 @@ export default function AddStudentModal({ label }) {
               onChange={(e) => handleChange("gender", e.target.value)}
             />
             <Select
+              label="Batch"
               className="w-full"
               options={batches}
               placeholder="Select batch"
@@ -130,17 +138,20 @@ export default function AddStudentModal({ label }) {
             />
 
             {/* Buttons row */}
-            <div className="flex items-center justify-end gap-2 pt-4 border-t border-base-300/50 col-span-1 md:col-span-2">
+            <div className="flex flex-col sm:flex-row items-center justify-end gap-2 pt-4 border-t border-base-300/50 col-span-1 sm:col-span-2">
               <button
                 type="button"
-                className="btn btn-ghost"
+                className="btn btn-outline btn-secondary w-full sm:w-auto"
                 onClick={() =>
                   document.getElementById("add_student_modal").close()
                 }
               >
                 Cancel
               </button>
-              <button type="submit" className="btn btn-primary">
+              <button
+                type="submit"
+                className="btn btn-primary w-full sm:w-auto"
+              >
                 Save
               </button>
             </div>

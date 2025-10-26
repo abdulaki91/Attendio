@@ -8,6 +8,7 @@ import {
   getMissedAttendance,
   findAttendanceRecord,
   insertDefaultAttendance,
+  getLatest,
 } from "../models/attendanceModel.js";
 import { findSessionByTeacherAndDate } from "../models/sessionModel.js";
 
@@ -162,5 +163,15 @@ export const fetchMissedAttendanceById = async (req, res) => {
   } catch (err) {
     console.error("Error fetching student attendance:", err);
     res.status(500).json({ error: "Server error" });
+  }
+};
+
+export const getLatestAttendance = async (req, res) => {
+  try {
+    const data = await getLatest();
+    res.json(data);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 };

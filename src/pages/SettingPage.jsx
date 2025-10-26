@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import api from "../api/api";
 import useFetchResource from "../hooks/useFetchResource";
 import useEditResource from "../hooks/useEditResource";
+import Navbar from "../Components/Navbar";
 
 export default function SettingPage() {
   const navigate = useNavigate();
@@ -102,6 +103,7 @@ export default function SettingPage() {
           <h1 className="text-3xl font-extrabold tracking-tight text-primary">
             Settings
           </h1>
+          <Navbar />
           <button className="btn btn-error btn-outline" onClick={handleLogout}>
             Log Out
           </button>

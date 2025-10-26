@@ -2,12 +2,13 @@ import express from "express";
 import { authenticateUser } from "../middlware/authMiddleware.js";
 import {
   fetchAllMissedAttendance,
-  fetchAttendance,
+  // fetchAttendance,
   fetchMissedAttendanceById,
   fetchStudentsWithAttendance,
   initializeAttendanceTable,
   markAttendance,
 } from "../controllers/attendanceController.js";
+import { getLatest } from "../models/attendanceModel.js";
 const router = express.Router();
 router.get(
   "/initialize/create-attendance-table",
@@ -24,9 +25,10 @@ router.get(
 );
 
 // Dashboard summary endpoint
-router.get("/get-attendance", authenticateUser, fetchAttendance);
+// router.get("/get-attendance", authenticateUser, fetchAttendance);
 router.get("/missed", authenticateUser, fetchAllMissedAttendance);
 router.get("/missed/:studentId", authenticateUser, fetchMissedAttendanceById);
+router.get("/get-latest", authenticateUser, getLatest); // GET /api/attendance/get-latest
 
 // Missed attendance counts per student
 

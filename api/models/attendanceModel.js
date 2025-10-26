@@ -292,3 +292,87 @@ export const findAttendanceRecord = async (
   );
   return rows;
 };
+export const getAttendanceByDate = async (date) => {
+  const [rows] = await db.query("SELECT * FROM attendance WHERE date = ?", [
+    date,
+  ]);
+  return rows;
+};
+
+/**
+ * Fetch the latest attendance records (for the most recent date)
+ * along with student info and session info.
+ */
+export const getLatest = async (filters = {}) => {
+  const { teacher_id, department, batch, section } = filters;
+
+  // Base query
+  let sql = `
+    SELECT 
+      a.id AS attendance_id,
+      s.id AS student_id,
+      s.fullname AS student_name,
+      s.department,
+      s.batch,
+      s.section,
+      a.status,
+      DATE_FORMAT(a.attendance_date, '%Y-%m-%d') AS attendance_date,
+      sess.name AS session_name,
+      a.teacher_id
+    FROM attendance a
+    JOIN students s ON s.id = a.student_id
+    JOIN sessions sess ON sess.id = a.session_id
+    WHERE a.attendance_date = (
+      SELECT MAX(attendance_date) FROM attendance
+    )
+  `;
+
+  const params = [];
+
+  if (teacher_id) {
+    sql += ` AND a.teacher_id = ?`;
+    params.push(teacher_id);
+  }
+
+  if (department) {
+    sql += ` AND s.department = ?`;
+    params.push(department);
+  }
+
+  if (batch) {
+    sql += ` AND s.batch = ?`;
+    params.push(batch);
+  }
+
+  if (section) {
+    sql += ` AND s.section = ?`;
+    params.push(section);
+  }
+
+  sql += ` ORDER BY s.fullname ASC`;
+
+  const [rows] = await db.execute(sql, params);
+
+  return rows;
+};
+
+/**
+ * Optional: fetch latest attendance grouped by department for Dashboard cards
+ */
+export const getLatestAttendanceSummary = async (teacher_id) => {
+  const sql = `
+    SELECT 
+      s.department,
+      COUNT(*) AS total_students,
+      SUM(CASE WHEN a.status='Present' THEN 1 ELSE 0 END) AS present_count,
+      SUM(CASE WHEN a.status='Absent' THEN 1 ELSE 0 END) AS absent_count
+    FROM attendance a
+    JOIN students s ON s.id = a.student_id
+    WHERE a.attendance_date = (SELECT MAX(attendance_date) FROM attendance)
+      ${teacher_id ? "AND a.teacher_id = ?" : ""}
+    GROUP BY s.department
+  `;
+  const params = teacher_id ? [teacher_id] : [];
+  const [rows] = await db.execute(sql, params);
+  return rows;
+};

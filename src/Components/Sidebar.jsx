@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ThemeSelector from "./ThemeController";
 
 export default function Sidebar({ isOpen, setIsOpen }) {
@@ -43,7 +43,15 @@ export default function Sidebar({ isOpen, setIsOpen }) {
   const handleDismiss = () => {
     setVisible((prev) => !prev);
   };
-
+  const handleHelpNavigate = () => {
+    setVisible(false);
+    navigate("/help");
+  };
+  useEffect(() => {
+    if (location.pathname === "/help") {
+      setVisible(false);
+    }
+  }, [location.pathname]);
   return (
     <div className="flex container bg-base-100 text-base-content min-w-full">
       {/* Sidebar */}
@@ -90,37 +98,58 @@ export default function Sidebar({ isOpen, setIsOpen }) {
               </button>
             ))}
           </div>
-          {/* User Info placeholder */}
         </nav>
       </div>
 
       {/* Main Content + Navbar */}
-      <div className="flex-1 lg:ml-64 w-full ">
-        <div className="p-2 h-10">
-          {/* {visible && !isOpen && (
-            <div className="p-2 md:p-3 lg:p-4 mb-2 text-xs sm:text-sm md:textarea-md bg-base-100 rounded-lg shadow-md border border-base-300 relative m-auto w-full">
-              <button
-                onClick={handleDismiss}
-                className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+      <div className="flex-1 lg:ml-64 min-w-full  justify-evenly">
+        <div className={`navbar bg-base-100 shadow-sm px-4 flex `}>
+          {/* Hamburger for mobile */}
+          <div>
+            <button
+              onClick={() => setIsOpen(true)}
+              className="btn btn-ghost btn-sm lg:hidden"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                <X size={16} />
-              </button>
-              <h1 className="text-lg font-bold text-primary mb-1">
-                Need Help?
-              </h1>
-              <p className="text-xs text-gray-500 mb-2">
-                Learn how to signup, start a session, and mark attendance.
-              </p>
-              <button
-                onClick={() => navigate("/help")}
-                className="flex items-center cursor-pointer gap-2 px-4 py-2 w-full  font-medium text-white bg-primary rounded-md hover:bg-primary/90 transition-all shadow"
-              >
-                <HelpCircle size={18} className="text-white" />
-                <span>User Guide</span>
-              </button>
-            </div>
-          )} */}
-          {/* <Navbar /> */}
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+          </div>
+          <div className="p-2 md:p-3 lg:p-4 flex  gap-4  ">
+            {visible && !isOpen && (
+              <div className="p-1 md:p-3 lg:p-2 text-xs sm:text-sm md:textarea-md bg-base-100 rounded-lg shadow-md border border-base-300 relative m-auto w-full">
+                <button
+                  onClick={handleDismiss}
+                  className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+                >
+                  <X size={16} />
+                </button>
+                <h1 className=" font-bold text-primary mb-1">Need Help?</h1>
+                <p className="text-xs text-gray-500 mb-2">
+                  Learn how to signup, start a session, and mark attendance.
+                </p>
+                <button
+                  onClick={() => handleHelpNavigate()}
+                  className="flex items-center cursor-pointer gap-2 px-4 py-2 w-full  font-medium text-white bg-primary rounded-md hover:bg-primary/90 transition-all shadow"
+                >
+                  <HelpCircle size={18} className="text-white" />
+                  <span>User Guide</span>
+                </button>
+              </div>
+            )}
+            <div className="flex-1 lg:ml-64"></div>
+          </div>
         </div>
       </div>
     </div>

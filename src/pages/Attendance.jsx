@@ -8,6 +8,7 @@ import { useAttendanceStudents } from "../hooks/useAttendanceStudents";
 import SessionModal from "../Components/SessionModal";
 import useFetchResource from "../hooks/useFetchResource";
 import useCreateResource from "../hooks/useCreateResource";
+import Input from "../Components/Input";
 const Attendance = () => {
   // ======= STATE =======
   const [year, setYear] = useState(new Date().getFullYear());
@@ -128,8 +129,8 @@ const Attendance = () => {
   return (
     <div className="p-2 md:p-4 lg:p-6 bg-base-300 space-y-6 rounded-lg">
       {/* HEADER */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Attendance</h1>
+      <div className="flex justify-between items-center text-xs sm:text-sm md:text-base lg:text-lg">
+        <h1 className="text-secondary font-bold">Attendance</h1>
         <p className="font-bold font-serif">
           Today is {formatLocaldate(new Date())}
         </p>
@@ -137,7 +138,7 @@ const Attendance = () => {
 
       {/* FILTERS */}
       <div className="flex flex-wrap gap-3 bg-base-100 p-3 rounded-lg shadow-sm justify-between items-center">
-        <div className="flex flex-wrap gap-2 items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
           <Select
             options={departments}
             label="Select Department"
@@ -156,12 +157,7 @@ const Attendance = () => {
             value={selectedSection}
             onChange={(e) => setSelectedSection(e.target.value)}
           />
-          <Button
-            className="btn btn-primary hover:text-accent "
-            onClick={handleOpenModal}
-          >
-            <span className="material-icons">➕</span> Start Session
-          </Button>
+          <Button onClick={handleOpenModal}>Start Session</Button>
           {isModalOpen && (
             <SessionModal
               isOpen={isModalOpen}
@@ -182,7 +178,7 @@ const Attendance = () => {
         </div>
 
         {/* WEEKDAY SELECTION */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 bg-base-200 p-3 rounded-lg">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 bg-base-200 p-3 rounded-lg w-full">
           {weekdays.map((day) => (
             <label
               key={day}
@@ -204,7 +200,7 @@ const Attendance = () => {
         </div>
 
         {/* CONTROLS */}
-        <div className="grid items-center gap-2 sm:grid-cols-2 md:grid-cols-4 ">
+        <div className="grid items-center gap-2 grid-cols-2 md:grid-cols-4 ">
           <Select
             label="Month"
             options={Array.from({ length: 12 }, (_, i) =>
@@ -224,9 +220,8 @@ const Attendance = () => {
             allowOther={false}
           />
 
-          <input
+          <Input
             type="number"
-            className="input input-bordered input-sm md:input-md w-24"
             value={year}
             min="2024"
             step="1"

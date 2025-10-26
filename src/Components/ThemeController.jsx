@@ -28,7 +28,7 @@ export default function ThemeSelector() {
   }, [theme]);
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 w-full">
       <Select
         options={themes}
         allowOther={false}

@@ -3,9 +3,11 @@ import Input from "../Components/Input";
 import Select from "../Components/Select";
 import useFetchResource from "../hooks/useFetchResource";
 import useEditResource from "../hooks/useEditResource";
+
 export default function EditStudentModal({ student, onClose }) {
   const [form, setForm] = useState({});
   const editStudent = useEditResource("students/edit", "students");
+
   const { data: sections = [] } = useFetchResource(
     "students/get-sections",
     "sections"
@@ -18,6 +20,7 @@ export default function EditStudentModal({ student, onClose }) {
     "students/get-batches",
     "batches"
   );
+
   useEffect(() => {
     if (student) setForm(student);
   }, [student]);
@@ -28,7 +31,6 @@ export default function EditStudentModal({ student, onClose }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     editStudent.mutate(form, {
       onSuccess: () => onClose(),
     });
@@ -38,10 +40,12 @@ export default function EditStudentModal({ student, onClose }) {
 
   return (
     <dialog id="edit_student_modal" className="modal" open>
-      <div className="modal-box w-max p-0 overflow-hidden rounded-lg shadow-lg">
+      <div className="modal-box max-w-sm sm:max-w-lg md:max-w-2xl w-full p-0 overflow-hidden rounded-lg shadow-lg">
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary/20 via-primary/10 to-transparent px-6 py-4 border-b border-base-300/50 flex items-center justify-between">
-          <h3 className="font-bold text-2xl text-primary">Edit Student</h3>
+        <div className="bg-gradient-to-r from-primary/20 via-primary/10 to-transparent px-4 sm:px-6 py-3 sm:py-4 border-b border-base-300/50 flex items-center justify-between">
+          <h3 className="font-bold text-xl sm:text-2xl text-primary">
+            Edit Student
+          </h3>
           <button
             type="button"
             className="btn btn-ghost btn-sm text-xl"
@@ -52,8 +56,8 @@ export default function EditStudentModal({ student, onClose }) {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6 w-max">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 justify-center items-center w-max">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               placeholder="Full Name"
               value={form.fullname || ""}
@@ -70,7 +74,6 @@ export default function EditStudentModal({ student, onClose }) {
               options={departments}
               onChange={(e) => handleChange("department", e.target.value)}
             />
-
             <Select
               label="Batch"
               value={form.batch || ""}

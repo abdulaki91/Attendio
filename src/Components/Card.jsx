@@ -1,20 +1,20 @@
-import LoadingSpinner from "../Components/LoadingSpinner";
+// Components/Card.jsx
 export default function Card({ title, value, icon, isLoading }) {
   return (
-    <div className="flex items-center justify-center  flex-col w-full md:w-max lg:w-64 p-2 bg-base-300  rounded-lg gap-4 mt-6 text-xs md:text-sm">
-      <div className="flex items-center gap-5 px-2">
-        {isLoading ? (
-          <LoadingSpinner />
-        ) : (
-          <>
-            {icon}
-            <div>
-              <p>{title}</p>
-              <p className="font-bold">{value}</p>
-            </div>
-          </>
-        )}
-      </div>
+    <div className="bg-base-200 p-4 rounded-lg shadow hover:shadow-md transition">
+      {isLoading ? (
+        <div className="animate-pulse h-20 flex items-center justify-center text-gray-400">
+          Loading...
+        </div>
+      ) : (
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold text-sm">{title}</h3>
+            <p className="text-2xl font-bold">{value}</p>
+          </div>
+          {icon}
+        </div>
+      )}
     </div>
   );
 }
