@@ -10,6 +10,7 @@ import Layout from "./Components/Layout";
 import Attendance from "./pages/Attendance";
 import Profile from "./pages/Profile";
 import SignupPage from "./pages/SignUpPage";
+import HelpPage from "./pages/HelpPage";
 import CheckEmailPage from "./pages/CheckEmailPage";
 import SessionAttendance from "./pages/SessionAttendance";
 function App() {
@@ -29,6 +30,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<SignupPage />} />
           <Route path="/check-email" element={<CheckEmailPage />} />
+          <Route path="/help" element={<HelpPage />} />
           <Route path="/*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
