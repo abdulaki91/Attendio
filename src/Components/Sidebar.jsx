@@ -11,6 +11,7 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import { useState } from "react";
+import ThemeSelector from "./ThemeController";
 
 export default function Sidebar({ isOpen, setIsOpen }) {
   const navigate = useNavigate();
@@ -44,7 +45,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
   };
 
   return (
-    <div className="flex container bg-base-100 text-base-content">
+    <div className="flex container bg-base-100 text-base-content min-w-full">
       {/* Sidebar */}
       <div
         className={`fixed top-0 left-0 h-full shadow-lg transition-all duration-300 z-40
@@ -94,29 +95,10 @@ export default function Sidebar({ isOpen, setIsOpen }) {
       </div>
 
       {/* Main Content + Navbar */}
-      <div className="flex-1 lg:ml-64">
-        <div className="navbar bg-base-100 shadow-sm px-4">
-          <button
-            onClick={() => setIsOpen(true)}
-            className="btn btn-ghost btn-sm lg:hidden"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
-          {visible && !isOpen && (
-            <div className="p-2 md:p-3 lg:p-4 mb-2 text-xs sm:text-sm md:textarea-md bg-base-100 rounded-lg shadow-md border border-base-300 relative m-auto">
+      <div className="flex-1 lg:ml-64 w-full ">
+        <div className="p-2 h-10">
+          {/* {visible && !isOpen && (
+            <div className="p-2 md:p-3 lg:p-4 mb-2 text-xs sm:text-sm md:textarea-md bg-base-100 rounded-lg shadow-md border border-base-300 relative m-auto w-full">
               <button
                 onClick={handleDismiss}
                 className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
@@ -137,9 +119,9 @@ export default function Sidebar({ isOpen, setIsOpen }) {
                 <span>User Guide</span>
               </button>
             </div>
-          )}
+          )} */}
+          {/* <Navbar /> */}
         </div>
-        <Navbar />
       </div>
     </div>
   );
