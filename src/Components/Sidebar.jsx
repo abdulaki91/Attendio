@@ -25,7 +25,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
     },
     { name: "Student", icon: <User size={16} />, path: "/student" },
     {
-      name: "Session Attendance",
+      name: "Sessions",
       icon: <CalendarCheck size={16} />,
       path: "/session-attendance",
     },
@@ -48,13 +48,13 @@ export default function Sidebar({ isOpen, setIsOpen }) {
       {/* Sidebar */}
       <div
         className={`fixed top-0 left-0 h-full shadow-lg transition-all duration-300 z-40
-          ${isOpen ? "w-24 sm:w-40 lg:w-64" : "w-0 lg:w-64"} 
+          ${isOpen ? "w-26 sm:w-38 lg:w-64" : "w-0 lg:w-64"} 
           overflow-hidden bg-base-200`}
       >
         {/* Logo + Close */}
         <div className="flex items-center justify-between p-2 sm:p-3 lg:p-4 border-b border-base-300 gap-2">
           <h1
-            className="text-base font-bold cursor-pointer"
+            className="text-secondary font-bold cursor-pointer"
             onClick={() => handleNavigation("/dashboard")}
           >
             Attendio
@@ -69,8 +69,8 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         </div>
 
         {/* Menu */}
-        <nav className="mt-4 flex flex-col justify-between h-[calc(100%-4rem)] sm:p-1 lg:p-4">
-          <div>
+        <nav className="mt-8 flex flex-col justify-between h-[calc(100%-4rem)] sm:p-1 lg:p-4 border-base-200 w-max">
+          <div className="w-max flex flex-col gap-4">
             {menuItems.map((item, index) => (
               <button
                 key={index}
@@ -78,12 +78,12 @@ export default function Sidebar({ isOpen, setIsOpen }) {
                 className={`flex items-center gap-1 px-2 py-1  transition rounded-md
                   ${
                     location.pathname === item.path
-                      ? "bg-base-300 font-medium"
+                      ? "bg-base-100 font-bold text-primary md:px-4 px-2"
                       : "hover:bg-base-300"
                   }`}
               >
                 {item.icon}
-                <span className="truncate text-[8px] sm:text-sm lg:text-base ">
+                <span className="truncate text-[13px] sm:text-sm lg:text-base w-max">
                   {item.name}
                 </span>
               </button>
@@ -131,7 +131,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
               </p>
               <button
                 onClick={() => navigate("/help")}
-                className="flex items-center gap-2 px-4 py-2 w-full text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90 transition-all shadow"
+                className="flex items-center cursor-pointer gap-2 px-4 py-2 w-full  font-medium text-white bg-primary rounded-md hover:bg-primary/90 transition-all shadow"
               >
                 <HelpCircle size={18} className="text-white" />
                 <span>User Guide</span>
