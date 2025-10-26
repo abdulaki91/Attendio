@@ -6,13 +6,16 @@ import {
   Settings,
   CalendarCheck,
   UserCheck,
+  HelpCircle,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
+import { useState } from "react";
 
 export default function Sidebar({ isOpen, setIsOpen }) {
   const navigate = useNavigate();
   const location = useLocation(); // get current pathname
+  const [visible, setVisible] = useState(true);
 
   const menuItems = [
     {
@@ -33,6 +36,11 @@ export default function Sidebar({ isOpen, setIsOpen }) {
   const handleNavigation = (path) => {
     navigate(path);
     setIsOpen(false);
+  };
+  // / Persist dismissal in localStorage
+
+  const handleDismiss = () => {
+    setVisible((prev) => !prev);
   };
 
   return (
@@ -79,7 +87,6 @@ export default function Sidebar({ isOpen, setIsOpen }) {
               </button>
             ))}
           </div>
-
           {/* User Info placeholder */}
         </nav>
       </div>
@@ -87,7 +94,29 @@ export default function Sidebar({ isOpen, setIsOpen }) {
       {/* Main Content + Navbar */}
       <div className="flex-1 lg:ml-64">
         <div className="navbar bg-base-100 shadow-sm px-4">
-          {/* Hamburger for mobile */}
+          {visible && (
+            <div className="p-4 mb-4 bg-base-100 rounded-lg shadow-md border border-base-300 relative m-auto">
+              <button
+                onClick={handleDismiss}
+                className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+              >
+                <X size={16} />
+              </button>
+              <h1 className="text-lg font-bold text-primary mb-1">
+                Need Help?
+              </h1>
+              <p className="text-xs text-gray-500 mb-2">
+                Learn how to signup, start a session, and mark attendance.
+              </p>
+              <button
+                onClick={() => navigate("/help")}
+                className="flex items-center gap-2 px-4 py-2 w-full text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90 transition-all shadow"
+              >
+                <HelpCircle size={18} className="text-white" />
+                <span>User Guide</span>
+              </button>
+            </div>
+          )}
           <button
             onClick={() => setIsOpen(true)}
             className="btn btn-ghost btn-sm lg:hidden"
@@ -108,7 +137,6 @@ export default function Sidebar({ isOpen, setIsOpen }) {
             </svg>
           </button>
         </div>
-
         <Navbar />
       </div>
     </div>
