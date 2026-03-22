@@ -5,10 +5,10 @@ import {
   // fetchAttendance,
   fetchMissedAttendanceById,
   fetchStudentsWithAttendance,
+  getLatestAttendance,
   initializeAttendanceTable,
   markAttendance,
 } from "../controllers/attendanceController.js";
-import { getLatest } from "../models/attendanceModel.js";
 const router = express.Router();
 router.get(
   "/initialize/create-attendance-table",
@@ -28,7 +28,7 @@ router.get(
 // router.get("/get-attendance", authenticateUser, fetchAttendance);
 router.get("/missed", authenticateUser, fetchAllMissedAttendance);
 router.get("/missed/:studentId", authenticateUser, fetchMissedAttendanceById);
-router.get("/get-latest", authenticateUser, getLatest); // GET /api/attendance/get-latest
+router.get("/get-latest", authenticateUser, getLatestAttendance); // GET /api/attendance/get-latest
 
 // Missed attendance counts per student
 

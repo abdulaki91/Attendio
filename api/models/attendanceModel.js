@@ -23,13 +23,13 @@ export const createAttendanceTable = async () => {
   return db.execute(sql).then(async () => {
     try {
       await db.execute(
-        `ALTER TABLE attendance ADD UNIQUE KEY unique_attendance_teacher (student_id, attendance_date, teacher_id);`
+        `ALTER TABLE attendance ADD UNIQUE KEY unique_attendance_teacher (student_id, attendance_date, teacher_id);`,
       );
     } catch (e) {
       // already updated; ignore
       console.log(
         "Unique key likely already exists, skipping alteration.",
-        e.message
+        e.message,
       );
     }
   });
@@ -44,12 +44,12 @@ export const toggleAttendanceRecord = async ({
 }) => {
   const [rows] = await db.execute(
     `SELECT * FROM attendance WHERE student_id=? AND attendance_date=? AND teacher_id=?`,
-    [student_id, attendance_date, teacher_id]
+    [student_id, attendance_date, teacher_id],
   );
 
   if (rows.length === 0) {
     throw new Error(
-      "Attendance record not found — please create a session first."
+      "Attendance record not found — please create a session first.",
     );
   }
 
@@ -250,7 +250,7 @@ export const getMissedAttendanceById = async (studentId) => {
     WHERE a.status = 'Absent' AND s.id = ?
     GROUP BY s.id, s.fullname
     `,
-    [studentId]
+    [studentId],
   );
   return (
     rows[0] || { student_id: studentId, student_name: null, missed_count: 0 }
@@ -260,7 +260,7 @@ export const insertDefaultAttendance = async (
   students,
   teacher_id,
   session_date,
-  session_id
+  session_id,
 ) => {
   if (!students || students.length === 0) return;
 
@@ -284,11 +284,11 @@ export const insertDefaultAttendance = async (
 export const findAttendanceRecord = async (
   student_id,
   teacher_id,
-  attendance_date
+  attendance_date,
 ) => {
   const [rows] = await db.execute(
     `SELECT * FROM attendance WHERE student_id=? AND teacher_id=? AND attendance_date=?`,
-    [student_id, teacher_id, attendance_date]
+    [student_id, teacher_id, attendance_date],
   );
   return rows;
 };
@@ -298,62 +298,35 @@ export const getAttendanceByDate = async (date) => {
   ]);
   return rows;
 };
+export const getLatest = async (teacher_id) => {
+  try {
+    const sql = `
+      SELECT 
+        a.id AS attendance_id,
+        s.id AS student_id,
+        s.fullname AS student_name,
+        s.department,
+        s.batch,
+        s.section,
+        a.status,
+        DATE_FORMAT(a.attendance_date, '%Y-%m-%d') AS attendance_date,
+        a.teacher_id
+      FROM attendance a
+      JOIN students s ON s.id = a.student_id
+      JOIN sessions sess ON sess.id = a.session_id
+      WHERE a.attendance_date = (
+        SELECT MAX(attendance_date) FROM attendance
+      )
+      AND a.teacher_id = ?
+      ORDER BY s.fullname ASC
+    `;
 
-/**
- * Fetch the latest attendance records (for the most recent date)
- * along with student info and session info.
- */
-export const getLatest = async (filters = {}) => {
-  const { teacher_id, department, batch, section } = filters;
-
-  // Base query
-  let sql = `
-    SELECT 
-      a.id AS attendance_id,
-      s.id AS student_id,
-      s.fullname AS student_name,
-      s.department,
-      s.batch,
-      s.section,
-      a.status,
-      DATE_FORMAT(a.attendance_date, '%Y-%m-%d') AS attendance_date,
-      sess.name AS session_name,
-      a.teacher_id
-    FROM attendance a
-    JOIN students s ON s.id = a.student_id
-    JOIN sessions sess ON sess.id = a.session_id
-    WHERE a.attendance_date = (
-      SELECT MAX(attendance_date) FROM attendance
-    )
-  `;
-
-  const params = [];
-
-  if (teacher_id) {
-    sql += ` AND a.teacher_id = ?`;
-    params.push(teacher_id);
+    const [rows] = await db.execute(sql, [teacher_id]);
+    return rows;
+  } catch (error) {
+    console.error("Error fetching latest attendance:", error);
+    throw error;
   }
-
-  if (department) {
-    sql += ` AND s.department = ?`;
-    params.push(department);
-  }
-
-  if (batch) {
-    sql += ` AND s.batch = ?`;
-    params.push(batch);
-  }
-
-  if (section) {
-    sql += ` AND s.section = ?`;
-    params.push(section);
-  }
-
-  sql += ` ORDER BY s.fullname ASC`;
-
-  const [rows] = await db.execute(sql, params);
-
-  return rows;
 };
 
 /**
@@ -372,6 +345,7 @@ export const getLatestAttendanceSummary = async (teacher_id) => {
       ${teacher_id ? "AND a.teacher_id = ?" : ""}
     GROUP BY s.department
   `;
+  console.log(sql);
   const params = teacher_id ? [teacher_id] : [];
   const [rows] = await db.execute(sql, params);
   return rows;

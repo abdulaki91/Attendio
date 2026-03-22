@@ -26,38 +26,11 @@ export default function Dashboard() {
     "departments"
   );
 
-  const attendance = useMemo(
-    () => [
-      {
-        attendance_id: 1,
-        student_id: 1,
-        student_name: "John Doe",
-        department: "CS",
-        batch: "1",
-        section: "A",
-        status: "Present",
-        attendance_date: "2025-10-25",
-        session_name: "Morning",
-        teacher_id: 5,
-      },
-      {
-        attendance_id: 2,
-        student_id: 2,
-        student_name: "Jane Smith",
-        department: "CS",
-        batch: "1",
-        section: "B",
-        status: "Absent",
-        attendance_date: "2025-10-25",
-        session_name: "Morning",
-        teacher_id: 5,
-      },
-    ],
-    [] // no dependencies -> memoized once
+  const { data: attendance = [] } = useFetchResource(
+    "attendance/get-latest",
+    "attendance"
   );
 
-  // } = useFetchResource("attendance/get-latest", "attendance");
-  // Filter students by department for cards
   const deptStudents = useMemo(() => {
     return selectedDepartment
       ? students.filter((s) => s.department === selectedDepartment)
@@ -123,7 +96,6 @@ export default function Dashboard() {
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <h1 className="text-2xl font-bold text-accent">Dashboard</h1>
         <div className="flex gap-3 items-center">
-          <h1>The page is using static data for demonstration purposes.</h1>
           <select
             className="select select-bordered"
             value={selectedDepartment}
@@ -211,7 +183,7 @@ export default function Dashboard() {
               {entry.status.toLowerCase() === "present"
                 ? "marked present"
                 : "absent"}{" "}
-              on {entry.attendance_date} ({entry.session_name})
+              on {entry.attendance_date}
             </li>
           ))}
         </ul>

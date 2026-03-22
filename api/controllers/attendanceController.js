@@ -168,10 +168,11 @@ export const fetchMissedAttendanceById = async (req, res) => {
 
 export const getLatestAttendance = async (req, res) => {
   try {
-    const data = await getLatest();
+    const teacher_id = req.user.id; // Get the teacher ID from the request
+    const data = await getLatest(teacher_id);
     res.json(data);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error", error: err.message });
+    console.error("Error fetching latest attendance:", err);
+    res.status(500).json({ error: "Server error" });
   }
 };
