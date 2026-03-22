@@ -1,8 +1,18 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 
+// Environment-based API configuration
+const getBaseURL = () => {
+  // Check if we're in development mode
+  if (import.meta.env.DEV) {
+    return "http://localhost:5000/api"; // Backend runs on port 5000
+  }
+  // Production URL
+  return "https://attendio-backend.abdiko.com/api";
+};
+
 const api = axios.create({
-  baseURL: "http://localhost:8000/api", //https://attendio-backend.abdiko.com  //http://localhost:8000/api
+  baseURL: getBaseURL(),
 });
 
 let isLoggingOut = false; // ✅ Prevent duplicate toasts & redirects
