@@ -19,10 +19,10 @@ const app = express();
 // --- Middleware ---
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://attendio.abdiko.com"], // your frontend URL
+    origin: [, "*", "http://localhost:5173", "https://attendio.abdiko.com"], // your frontend URL
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true, // if you use cookies or tokens
-  })
+  }),
 );
 app.use(express.json());
 

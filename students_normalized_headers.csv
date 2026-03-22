@@ -1,0 +1,21 @@
+fullname,id_number,department,batch,gender,section
+John Smith,STU001,Computer Science,2024,Male,A
+Sarah Johnson,STU002,Computer Science,2024,Female,A
+Michael Brown,STU003,Computer Science,2024,Male,B
+Emily Davis,STU004,Computer Science,2024,Female,B
+David Wilson,STU005,Information Technology,2023,Male,A
+Jessica Miller,STU006,Information Technology,2023,Female,A
+Christopher Moore,STU007,Information Technology,2023,Male,B
+Amanda Taylor,STU008,Information Technology,2023,Female,B
+Matthew Anderson,STU009,Electrical Engineering,2024,Male,A
+Ashley Thomas,STU010,Electrical Engineering,2024,Female,A
+Daniel Jackson,STU011,Electrical Engineering,2024,Male,B
+Stephanie White,STU012,Electrical Engineering,2024,Female,B
+Ryan Harris,STU013,Mechanical Engineering,2023,Male,A
+Nicole Martin,STU014,Mechanical Engineering,2023,Female,A
+Kevin Thompson,STU015,Mechanical Engineering,2023,Male,B
+Lauren Garcia,STU016,Mechanical Engineering,2023,Female,B
+Brandon Martinez,STU017,Civil Engineering,2024,Male,A
+Megan Robinson,STU018,Civil Engineering,2024,Female,A
+Tyler Clark,STU019,Civil Engineering,2024,Male,B
+Samantha Rodriguez,STU020,Civil Engineering,2024,Female,B
