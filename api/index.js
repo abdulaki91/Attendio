@@ -22,6 +22,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://localhost:3000",
+      "http://localhost:8000",
       "https://attendio.abdiko.com",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

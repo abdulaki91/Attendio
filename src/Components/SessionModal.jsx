@@ -16,7 +16,7 @@ export default function SessionModal({
   setSelectedSection,
 }) {
   const [sessionDate, setSessionDate] = useState(
-    new Date().toISOString().split("T")[0]
+    new Date().toISOString().split("T")[0],
   );
 
   // ✅ Keep the modal fields synced with parent selections
@@ -24,7 +24,7 @@ export default function SessionModal({
     setSelectedDepartment((prev) => prev || "");
     setSelectedBatch((prev) => prev || "");
     setSelectedSection((prev) => prev || "");
-  }, [setSelectedDepartment, setSelectedBatch, setSelectedSection]);
+  }, []); // Empty dependency array since this should only run once on mount
 
   const handleSubmit = (e) => {
     e.preventDefault();

@@ -1,14 +1,14 @@
 import { useEffect } from "react";
-import {useAuth} from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 function Home() {
   const navigate = useNavigate();
-  const {token} = useAuth();
+  const { token } = useAuth();
   useEffect(() => {
     if (!token) return navigate("/login");
     navigate("/dashboard");
-  }, [navigate, token]);
+  }, [token]); // Remove navigate from dependencies
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
