@@ -2,7 +2,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 
 const api = axios.create({
-  baseURL: "https://attendio-backend.abdiko.com/api", //https://attendio-backend.abdiko.com  //http://localhost:8000/api
+  baseURL: "http://localhost:8000/api", //https://attendio-backend.abdiko.com  //http://localhost:8000/api
 });
 
 let isLoggingOut = false; // ✅ Prevent duplicate toasts & redirects
