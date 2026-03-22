@@ -19,12 +19,7 @@ const app = express();
 // --- Middleware ---
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173", // Frontend dev server
-      "http://localhost:3000", // Alternative frontend port
-      "http://localhost:8000", // Backend port (for testing)
-      "https://attendio.abdiko.com", // Production frontend
-    ],
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],

@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 const getBaseURL = () => {
   // Check if we're in development mode
   if (import.meta.env.DEV) {
-    return "http://localhost:8000/api"; // Backend runs on port 8000
+    return "https://attendio-backend.abdiko.com/api"; // Backend runs on port 8000
   }
   // Production URL
   return "https://attendio-backend.abdiko.com/api";

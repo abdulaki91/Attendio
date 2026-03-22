@@ -29,7 +29,7 @@ export function AuthProvider({ children }) {
     } catch (error) {
       console.error("Login failed:", error);
       toast.error(
-        error.response?.data?.message || "Login failed. Please try again."
+        error.response?.data?.message || "Login failed. Please try again.",
       );
       throw error;
     }
